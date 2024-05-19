@@ -1,6 +1,5 @@
 # shrtlin - A Kotlin Multiplatform URL Shortener
-
-shrtlin - is an all-in-one self-hosted open-source URL shortener
+`shrtlin` is a feature-rich, open-source URL shortening service built with Kotlin Multiplatform.
 It provides a seamless experience across Android, iOS, Web, and Desktop, powered by a Ktor backend and PostgreSQL database.
 
 ## About
