@@ -33,7 +33,7 @@ shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebas
 
 ##### TLDR
 ```bash
-git clone https://github.com/samoylenkodmitry/shrtlin.git && cd shrtl.in && ./deploy.sh
+git clone https://github.com/samoylenkodmitry/shrtlin.git && cd shrtlin && chmod +x ./deploy.sh && ./deploy.sh
 ```
 
 1. Clone the repository: `git clone https://github.com/samoylenkodmitry/shrtlin.git`
