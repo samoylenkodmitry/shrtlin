@@ -1,7 +1,7 @@
 Directory tree with max depth of 3:
 ```
 .
-├── all.txt
+├── all.md
 ├── build.gradle.kts
 ├── composeApp
 │   ├── build.gradle.kts
@@ -230,13 +230,13 @@ shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebas
 **Arch Linux Installation (Single Command):**
 
 ```bash
-sudo yay -S git jdk11-openjdk docker docker-compose postgresql --noconfirm 
+sudo yay -S git jdk17-openjdk docker docker-compose postgresql --noconfirm 
 ```
 
 **Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
 
 ```bash
-export JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
@@ -987,7 +987,7 @@ inline fun <reified A : Any, reified R : Any> Route.post(
 
 #!/bin/bash
 # Create or clear the output file
-output_file="all.txt"
+output_file="all.md"
 > "$output_file"
 
 # Append the `tree` command output with a max depth of 3
@@ -999,6 +999,10 @@ echo -e "\n\n" >> "$output_file"
 
 # Find and process relevant files, excluding those in /build/ directories
 find . -type f \( -name "*.kt" -o -name "*.md" -o -name "*.yml" -o -name "*.kts" -o -name "*.sh" -o -name "template.env" -o -name "Dockerfile" \) ! -path "*/build/*" | while IFS= read -r file; do
+  # skip the current file
+  if [ "$file" == "./all.md" ]; then
+    continue
+  fi
   echo "#### File: \`$file"\` >> "$output_file"
   echo '```' >> "$output_file"
   echo -e "\n" >> "$output_file"
@@ -1008,7 +1012,7 @@ find . -type f \( -name "*.kt" -o -name "*.md" -o -name "*.yml" -o -name "*.kts"
   echo -e "\n\n" >> "$output_file"  # Adding newlines to separate file contents
 done
 
-# copy all.txt contents to clipboard with xclip
+# copy all.md contents to clipboard with xclip
 cat "$output_file" | xclip -selection clipboard
 
 ```

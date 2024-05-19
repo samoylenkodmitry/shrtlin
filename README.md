@@ -30,13 +30,13 @@ shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebas
 **Arch Linux Installation (Single Command):**
 
 ```bash
-sudo yay -S git jdk11-openjdk docker docker-compose postgresql --noconfirm 
+sudo yay -S git jdk17-openjdk docker docker-compose postgresql --noconfirm 
 ```
 
 **Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
 
 ```bash
-export JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
