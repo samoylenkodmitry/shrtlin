@@ -1,0 +1,34 @@
+*.iml
+.gradle
+**/build/
+xcuserdata
+!src/**/build/
+local.properties
+.idea
+.DS_Store
+captures
+.externalNativeBuild
+.cxx
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcodeproj/project.xcworkspace/
+!*.xcworkspace/contents.xcworkspacedata
+**/xcshareddata/WorkspaceSettings.xcsettings
+!/ktor.pk8
+*.kotlin/*
+.kotlin/
+metadata/
+sessions/
+
+# Ignore database credential files
+db_username.txt
+db_password.txt
+
+# Ignore RSA private key
+server/ktor.pk8
+
+# Ignore .env file
+.env
+
+!/kotlin-js-store/yarn.lock

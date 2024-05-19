@@ -1,0 +1,11 @@
+{
+  "keys": [
+    {
+      "alg": "RS512",
+      "kty": "RSA",
+      "e": "AQAB",
+      "kid": "shrtl.in_kid_1",
+      "n": "rRbu3b6NSr-cn3hTyXfRZCMEsvO5OOMFLix8pg6Zd8Ms9ku2XbadYZcMxSnXPn46U21mUd7ymGndbXkMjHga-a6wi8Qz3eH3g5IWe9N-_ukgxrYqJE5ObxTU0xAk5Sau7s4n66OfdCOJ2dPL0R-fcM3FOdpvDD8n34NLYFAFmQXjXM19xYlSjcQKW90p5NHfrl2pmFEOensf2dmJZ5I4AkqjoRu8lK-c4oP92n8Z0ldihi1wAbH9ZDGAHtiwP85xTr7KhkNYP7SyyMWVZQ2Z0A1ufKVNlgWsR6tjRdkuL_rcXPfjVdxYs5NEZbYPuud7c7hy2-ZNSXiGbqVQoZmrzw"
+    }
+  ]
+}
