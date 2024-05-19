@@ -71,9 +71,10 @@ Directory tree with max depth of 3:
 │   └── iosApp.xcodeproj
 │       └── project.pbxproj
 ├── kotlin-js-store
-│   └── yarn.lock
+├── LICENSE
 ├── local.properties
 ├── README.md
+├── runweb.sh
 ├── sd.excalidraw
 ├── sd.png
 ├── server
@@ -84,9 +85,7 @@ Directory tree with max depth of 3:
 │   ├── Dockerfile
 │   ├── gen_jwks_from_key.sh
 │   ├── gen_new_rss_key.sh
-│   ├── ktor.key
 │   ├── ktor.pk8
-│   ├── ktor.pub
 │   └── src
 │       └── main
 │           ├── kotlin
@@ -126,7 +125,7 @@ Directory tree with max depth of 3:
 ├── template.env
 └── totext.sh
 
-62 directories, 63 files
+62 directories, 62 files
 ```
 
 
@@ -199,33 +198,67 @@ echo "Deployment complete!"
 ```
 
 
-This is a Kotlin Multiplatform project targeting Android, iOS, Web, Desktop, Server.
+# shrtlin - A Kotlin Multiplatform URL Shortener
+`shrtlin` is a feature-rich, open-source URL shortening service built with Kotlin Multiplatform.
+It provides a seamless experience across Android, iOS, Web, and Desktop, powered by a Ktor backend and PostgreSQL database.
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+## About
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebase for multiple platforms. It offers a user-friendly interface for shortening URLs and managing your links, all while ensuring secure authentication using JWT tokens and Proof of Work.
 
-* `/server` is for the Ktor server application.
+## Features
 
-* `/shared` is for the code that will be shared between all targets in the project.
-  The most important subfolder is `commonMain`. If preferred, you can add code to the platform-specific folders here too.
+* **Easy URL shortening:** Quickly shorten URLs using intuitive interfaces on Android, iOS, Web, and Desktop.
+* **Seamless Authentication:** Securely authenticate using JWT tokens and Proof of Work.
+* **URL Management:** View, edit, and delete your shortened URLs.
+* **Cross-platform compatibility:** Enjoy a consistent experience across Android, iOS, Web, and Desktop.
+* **PostgreSQL database:**  Reliable and scalable data storage.
+* **Easy deployment:** Deploy the entire application on a single VPS.
 
+## Roadmap
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html),
-[Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform/#compose-multiplatform),
-[Kotlin/Wasm](https://kotl.in/wasm/)…
+* **Analytics:** Track click-through rates and gain insights into your shortened URLs.
+* **QR Codes:** Generate QR codes for your shortened URLs for easy sharing.
+* **Enhanced URL Management:** Implement features like custom slugs, expiration dates, and more.
 
-**Note:** Compose/Web is Experimental and may be changed at any time. Use it only for evaluation purposes.
-We would appreciate your feedback on Compose/Web and Kotlin/Wasm in the public Slack channel [#compose-web](https://slack-chats.kotlinlang.org/c/compose-web).
-If you face any issues, please report them on [GitHub](https://github.com/JetBrains/compose-multiplatform/issues).
+## Getting Started
 
-You can open the web application by running the `:composeApp:wasmJsBrowserDevelopmentRun` Gradle task.
+**Prerequisites:**
+
+* Your own VPS (Virtual Private Server) with Linux installed
+
+**Arch Linux Installation (Single Command):**
+
+```bash
+sudo yay -S git jdk11-openjdk docker docker-compose postgresql --noconfirm 
+```
+
+**Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
+
+```bash
+export JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+export PATH="$JAVA_HOME/bin:$PATH"
+```
+
+**Steps:**
+
+##### TLDR
+```bash
+git clone https://github.com/samoylenkodmitry/shrtlin.git && cd shrtlin && chmod +x ./deploy.sh && ./deploy.sh
+```
+
+1. Clone the repository: `git clone https://github.com/samoylenkodmitry/shrtlin.git`
+2. **Ensure the prerequisites are installed and configured as described above.**
+3. Build and run the application: `./deploy.sh`
+4. Check environment the created `.env`
+
+## License
+
+This project is licensed under the [LICENSE](LICENSE).
+
+## Contributing
+
+We welcome contributions from the community! Please feel free to submit issues, feature requests, or pull requests to help us improve shrtlin.
 
 ```
 
@@ -435,7 +468,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the JAR file
-COPY ./build/libs/server-1.0.0.jar /app/server.jar
+COPY ./build/libs/server-all.jar /app/server.jar
 
 # Copy the JWKS file 
 COPY ./certs/jwks.json /app/certs/jwks.json 
@@ -965,7 +998,7 @@ echo '```' >> "$output_file"
 echo -e "\n\n" >> "$output_file"
 
 # Find and process relevant files, excluding those in /build/ directories
-find . -type f \( -name "*.kt" -o -name "*.md" -o -name "*.yml" -o -name "*.kts" -o -name "*.sh" -o -name "*.env" -o -name "Dockerfile" \) ! -path "*/build/*" | while IFS= read -r file; do
+find . -type f \( -name "*.kt" -o -name "*.md" -o -name "*.yml" -o -name "*.kts" -o -name "*.sh" -o -name "template.env" -o -name "Dockerfile" \) ! -path "*/build/*" | while IFS= read -r file; do
   echo "#### File: \`$file"\` >> "$output_file"
   echo '```' >> "$output_file"
   echo -e "\n" >> "$output_file"
@@ -1040,6 +1073,17 @@ dependencyResolutionManagement {
 include(":composeApp")
 include(":server")
 include(":shared")
+
+```
+
+
+
+#### File: `./runweb.sh`
+```
+
+
+#!/bin/bash
+./gradlew :composeApp:wasmJsBrowserDevelopmentRun
 
 ```
 
@@ -1603,8 +1647,7 @@ kotlin {
 FROM nginx:stable-alpine
 
 # Copy built frontend
-COPY ./build/distributions/composeApp.js /usr/share/nginx/html/
-COPY ./build/distributions/composeApp.js.map /usr/share/nginx/html/
+COPY ./build/dist/wasmJs/productionExecutable/* /usr/share/nginx/html/
 
 # Expose port
 EXPOSE 80

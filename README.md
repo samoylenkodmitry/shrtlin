@@ -26,8 +26,19 @@ shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebas
 **Prerequisites:**
 
 * Your own VPS (Virtual Private Server) with Linux installed
-* Docker and Docker Compose
-* PostgreSQL database
+
+**Arch Linux Installation (Single Command):**
+
+```bash
+sudo yay -S git jdk11-openjdk docker docker-compose postgresql --noconfirm 
+```
+
+**Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
+
+```bash
+export JAVA_HOME="/usr/lib/jvm/java-11-openjdk"
+export PATH="$JAVA_HOME/bin:$PATH"
+```
 
 **Steps:**
 
@@ -37,8 +48,9 @@ git clone https://github.com/samoylenkodmitry/shrtlin.git && cd shrtlin && chmod
 ```
 
 1. Clone the repository: `git clone https://github.com/samoylenkodmitry/shrtlin.git`
-2. Build and run the application: `./deploy.sh`
-3. Check environment the created `.env`
+2. **Ensure the prerequisites are installed and configured as described above.**
+3. Build and run the application: `./deploy.sh`
+4. Check environment the created `.env`
 
 ## License
 
