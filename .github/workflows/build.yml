@@ -16,15 +16,23 @@ jobs:
           - os: ubuntu-latest
             target: web
             artifact_name: frontend-web
+            package_task: wasmJsBrowserDistribution
           - os: ubuntu-latest
             target: linux-x64
             artifact_name: frontend-linux-x64
+            package_task: packageDeb
           - os: macos-latest
             target: macos-x64
             artifact_name: frontend-macos-x64
+            package_task: packageDmg
           - os: windows-latest
             target: windows-x64
             artifact_name: frontend-windows-x64
+            package_task: packageMsi
+          - os: macos-latest
+            target: ios
+            artifact_name: frontend-ios
+            package_task: packageIos
     steps:
       - uses: actions/checkout@v3
 
@@ -35,21 +43,16 @@ jobs:
           java-version: '17'
 
       - name: Build Frontend
-        run: |
-          if [ "${{ matrix.target }}" == "web" ]; then
-            ./gradlew :composeApp:build :composeApp:wasmJsBrowserDistribution
-          else 
-            ./gradlew :composeApp:build :composeApp:${{ matrix.target }}Distribution
-          fi  
+        run: ./gradlew :composeApp:build :composeApp:${{ matrix.package_task }}
 
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            if [[ "${{ matrix.target }}" == "web" ]]; then 
-              echo "composeApp/build/dist/wasmJs/productionExecutable" 
+            if [ "${{ matrix.target }}" == "web" ]; then
+              composeApp/build/dist/wasmJs/productionExecutable
             else
-              echo "composeApp/build/distributions/${{ matrix.target }}/" 
+              composeApp/build/compose/binaries/${{ matrix.target }} 
             fi
 
   build-backend:
