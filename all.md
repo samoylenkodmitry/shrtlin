@@ -198,13 +198,16 @@ echo "Deployment complete!"
 ```
 
 
-# shrtlin - A Kotlin Multiplatform URL Shortener
-`shrtlin` is a feature-rich, open-source URL shortening service built with Kotlin Multiplatform.
-It provides a seamless experience across Android, iOS, Web, and Desktop, powered by a Ktor backend and PostgreSQL database.
+# shrtlin
+`shrtlin` is a feature-rich, open-source `URL shortening` service.
+It provides a seamless experience across Android, iOS, Web, and Desktop.
 
 ## About
 
-shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebase for multiple platforms. It offers a user-friendly interface for shortening URLs and managing your links, all while ensuring secure authentication using JWT tokens and Proof of Work.
+`shrtlin` leverages the power of Kotlin Multiplatform to deliver a unified codebase for multiple platforms.
+It offers a user-friendly interface for shortening URLs and managing your links, 
+all while ensuring secure authentication using JWT tokens and Proof of Work.
+Powered by a Ktor backend and PostgreSQL database.
 
 ## Features
 
@@ -230,13 +233,13 @@ shrtlin leverages the power of Kotlin Multiplatform to deliver a unified codebas
 **Arch Linux Installation (Single Command):**
 
 ```bash
-sudo yay -S git jdk17-openjdk docker docker-compose postgresql --noconfirm 
+sudo yay -S git jdk21-openjdk docker docker-compose postgresql --noconfirm 
 ```
 
 **Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
 
 ```bash
-export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 

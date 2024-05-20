@@ -1,12 +1,11 @@
 #!/bin/bash
+# --- Download Artifacts from Release ---
 
-# --- Build Applications --- 
+wget https://github.com/samoylenkodmitry/shrtlin/releases/download/v1.0.1/frontend-artifact.zip
+unzip frontend-artifact.zip -d composeApp/build/distributions/
 
-# Build frontend (Web)
-./gradlew :composeApp:build
-
-# Build backend
-./gradlew :server:build
+wget https://github.com/samoylenkodmitry/shrtlin/releases/download/v1.0.1/backend-artifact.jar 
+mv backend-artifact.jar server/build/libs/server-all.jar
 
 # --- Generate RSA Keys if not present ---
 

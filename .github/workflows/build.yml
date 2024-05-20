@@ -1,0 +1,57 @@
+name: Build and Create Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Build Frontend
+        run: ./gradlew :composeApp:build :composeApp:jsBrowserProductionWebpack
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frontend-artifact
+          path: composeApp/build/distributions/
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+      - name: Build Backend
+        run: ./gradlew :server:build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: backend-artifact
+          path: server/build/libs/
+
+  create-release:
+    needs: [ build-frontend, build-backend ] # Ensure builds are finished 
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-artifact
+          path: frontend-artifact/
+      - uses: actions/download-artifact@v3
+        with:
+          name: backend-artifact
+          path: backend-artifact/
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v1.0.1 # Replace with your desired version
+          files: |
+            frontend-artifact/* 
+            backend-artifact/*
