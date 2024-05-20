@@ -25,6 +25,7 @@ dependencies {
     implementation(libs.bundles.logging)
     implementation(libs.postgresql)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.slf4j.simple)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
 }

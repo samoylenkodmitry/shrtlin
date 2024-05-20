@@ -77,6 +77,7 @@ kotlin {
             implementation(libs.multiplatform.settings.no.arg)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.slf4j.simple)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -140,5 +141,5 @@ compose.experimental {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
