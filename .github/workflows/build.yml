@@ -46,11 +46,11 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            if [ "${{ matrix.target }}" == "web" ]; then 
-              composeApp/build/dist/wasmJs/productionExecutable 
+            if [[ "${{ matrix.target }}" == "web" ]]; then 
+              echo "composeApp/build/dist/wasmJs/productionExecutable" 
             else
-              composeApp/build/distributions/${{ matrix.target }}/
-            fi          
+              echo "composeApp/build/distributions/${{ matrix.target }}/" 
+            fi
 
   build-backend:
     runs-on: ubuntu-latest
@@ -76,22 +76,27 @@ jobs:
         with:
           name: frontend-web
           path: frontend-web/
+        continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: frontend-linux-x64
           path: frontend-linux-x64/
+        continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: frontend-macos-x64
           path: frontend-macos-x64/
+        continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: frontend-windows-x64
           path: frontend-windows-x64/
+        continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: backend-artifact
           path: backend-artifact/
+        continue-on-error: true
       - uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
