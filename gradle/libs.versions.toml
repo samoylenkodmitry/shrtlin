@@ -16,7 +16,7 @@ compose-ui-tooling = "1.6.7"
 junit = "4.13.2"
 kotlin = "2.0.0-RC2"
 kotlinxCoroutinesCore = "1.8.1"
-ktor = "3.0.0-wasm1"
+ktor = "3.0.0-wasm2"
 ktor-plugin = "2.3.10"
 logback = "1.5.6"
 lifecycle-viewmodel-compose = "2.8.0-beta02"
@@ -27,10 +27,8 @@ slf4j = "1.7.32"
 kotlinx-date-time = "0.5.0"
 okio = "3.9.0" # for sha256, todo consider lighter options
 multiplatform-settings = "1.1.1"
-atomicfu = "0.23.2"
 
 [libraries]
-atomicfu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicfu" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }
