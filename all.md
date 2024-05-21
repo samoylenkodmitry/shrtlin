@@ -310,8 +310,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'zulu'
-          java-version: '18'
+          distribution: 'temurin'
+          java-version: '17'
 
       - name: Build Frontend
         run: ./gradlew :composeApp:build :composeApp:${{ matrix.package_task }}

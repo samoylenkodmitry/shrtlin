@@ -43,6 +43,7 @@ kotlin {
             implementation(libs.kotlinx.serialization)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.okio.common)
+            implementation(libs.atomicfu)
         }
     }
 }
