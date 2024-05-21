@@ -73,6 +73,7 @@ Directory tree with max depth of 3:
 ├── kotlin-js-store
 ├── LICENSE
 ├── local.properties
+├── proguard-rules.pro
 ├── README.md
 ├── runweb.sh
 ├── sd.excalidraw
@@ -125,7 +126,7 @@ Directory tree with max depth of 3:
 ├── template.env
 └── totext.sh
 
-62 directories, 62 files
+62 directories, 63 files
 ```
 
 
@@ -135,14 +136,13 @@ Directory tree with max depth of 3:
 
 
 #!/bin/bash
+# --- Download Artifacts from Release ---
 
-# --- Build Applications --- 
+wget https://github.com/samoylenkodmitry/shrtlin/releases/download/v1.0.1/frontend-artifact.zip
+unzip frontend-artifact.zip -d composeApp/build/distributions/
 
-# Build frontend (Web)
-./gradlew :composeApp:build
-
-# Build backend
-./gradlew :server:build
+wget https://github.com/samoylenkodmitry/shrtlin/releases/download/v1.0.1/backend-artifact.jar 
+mv backend-artifact.jar server/build/libs/server-all.jar
 
 # --- Generate RSA Keys if not present ---
 
@@ -198,6 +198,8 @@ echo "Deployment complete!"
 ```
 
 
+[![Build and Create Release](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml/badge.svg)](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml)
+
 # shrtlin
 `shrtlin` is a feature-rich, open-source `URL shortening` service.
 It provides a seamless experience across Android, iOS, Web, and Desktop.
@@ -233,13 +235,13 @@ Powered by a Ktor backend and PostgreSQL database.
 **Arch Linux Installation (Single Command):**
 
 ```bash
-sudo yay -S git jdk21-openjdk docker docker-compose postgresql --noconfirm 
+sudo yay -S git jdk17-openjdk docker docker-compose postgresql --noconfirm 
 ```
 
 **Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
 
 ```bash
-export JAVA_HOME="/usr/lib/jvm/java-21-openjdk"
+export JAVA_HOME="/usr/lib/jvm/java-17-openjdk"
 export PATH="$JAVA_HOME/bin:$PATH"
 ```
 
@@ -262,6 +264,129 @@ This project is licensed under the [LICENSE](LICENSE).
 ## Contributing
 
 We welcome contributions from the community! Please feel free to submit issues, feature requests, or pull requests to help us improve shrtlin.
+
+```
+
+
+
+#### File: `./.github/workflows/build.yml`
+```
+
+
+name: Build and Create Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    name: build-${{ matrix.os }}-${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: web
+            artifact_name: frontend-web
+            package_task: wasmJsBrowserDistribution
+          - os: ubuntu-latest
+            target: linux-x64
+            artifact_name: frontend-linux-x64
+            package_task: packageDeb
+          - os: macos-latest
+            target: macos-x64
+            artifact_name: frontend-macos-x64
+            package_task: packageDmg
+          - os: windows-latest
+            target: windows-x64
+            artifact_name: frontend-windows-x64
+            package_task: packageMsi
+          - os: macos-latest
+            target: ios
+            artifact_name: frontend-ios
+            package_task: packageIos
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build Frontend
+        run: ./gradlew :composeApp:build :composeApp:${{ matrix.package_task }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            if [ "${{ matrix.target }}" == "web" ]; then
+              composeApp/build/dist/wasmJs/productionExecutable
+            else
+              composeApp/build/compose/binaries/${{ matrix.target }} 
+            fi
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Build Backend
+        run: ./gradlew :server:build
+      - uses: actions/upload-artifact@v3
+        with:
+          name: backend-artifact
+          path: server/build/libs/
+
+  create-release:
+    needs: [build, build-backend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-web
+          path: frontend-web/
+        continue-on-error: true
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-linux-x64
+          path: frontend-linux-x64/
+        continue-on-error: true
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-macos-x64
+          path: frontend-macos-x64/
+        continue-on-error: true
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-windows-x64
+          path: frontend-windows-x64/
+        continue-on-error: true
+      - uses: actions/download-artifact@v3
+        with:
+          name: backend-artifact
+          path: backend-artifact/
+        continue-on-error: true
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          files: |
+            frontend-web/*
+            frontend-linux-x64/*
+            frontend-macos-x64/*
+            frontend-windows-x64/*
+            backend-artifact/*
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 ```
 
@@ -452,6 +577,7 @@ dependencies {
     implementation(libs.bundles.logging)
     implementation(libs.postgresql)
     implementation(libs.kotlinx.datetime)
+    implementation(libs.slf4j.simple)
     testImplementation(libs.ktor.server.tests)
     testImplementation(libs.kotlin.test.junit)
 }
@@ -1158,7 +1284,7 @@ android {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 
@@ -1186,6 +1312,7 @@ actual fun getPlatform(): Platform = IOSPlatform()
 ```
 
 
+import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
 actual fun getUrlOpener(): UrlOpener =
@@ -1576,6 +1703,7 @@ kotlin {
             implementation(libs.multiplatform.settings.no.arg)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.slf4j.simple)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
@@ -1639,7 +1767,7 @@ compose.experimental {
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 

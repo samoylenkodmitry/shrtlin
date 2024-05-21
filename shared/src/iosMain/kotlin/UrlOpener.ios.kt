@@ -1,3 +1,4 @@
+import platform.Foundation.NSURL
 import platform.UIKit.UIApplication
 
 actual fun getUrlOpener(): UrlOpener =
