@@ -1,3 +1,5 @@
+[![Build and Create Release](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml/badge.svg)](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml)
+
 # shrtlin
 `shrtlin` is a feature-rich, open-source `URL shortening` service.
 It provides a seamless experience across Android, iOS, Web, and Desktop.
