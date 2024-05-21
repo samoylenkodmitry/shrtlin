@@ -29,18 +29,14 @@ jobs:
             target: windows-x64
             artifact_name: frontend-windows-x64
             package_task: packageMsi
-          - os: macos-latest
-            target: ios
-            artifact_name: frontend-ios
-            package_task: packageIos
     steps:
       - uses: actions/checkout@v3
 
       - name: Setup Java
         uses: actions/setup-java@v3
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: 'zulu'
+          java-version: '18'
 
       - name: Build Frontend
         run: ./gradlew :composeApp:build :composeApp:${{ matrix.package_task }}
