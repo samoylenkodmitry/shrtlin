@@ -40,7 +40,12 @@ jobs:
           java-version: '17'
 
       - name: Build Frontend
-        run: ./gradlew :composeApp:build :composeApp:${{ matrix.package_task }}
+        run: ./gradlew :composeApp:${{ matrix.package_task }}
+        
+      - name: Print File Tree After Build
+        run: |
+          echo "File tree after build:"
+          tree ./
 
       - uses: actions/upload-artifact@v3
         with:
