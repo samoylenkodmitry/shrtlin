@@ -18,7 +18,7 @@ jobs:
           #            artifact_name: frontend-web
           #            package_task: wasmJsBrowserDistribution
           - os: ubuntu-latest
-            target: linux-x64
+            target: deb
             artifact_name: frontend-linux-x64
             package_task: packageDeb
     # TODO: fix build on macOS            
@@ -54,7 +54,7 @@ jobs:
             if [ "${{ matrix.target }}" == "web" ]; then
               composeApp/build/dist/wasmJs/productionExecutable
             else
-              composeApp/build/compose/binaries/${{ matrix.target }} 
+              composeApp/build/compose/binaries/main/${{ matrix.target }} 
             fi
 
 #  build-backend:
@@ -108,7 +108,6 @@ jobs:
         run: |
           ls -lisa
           echo "Files in frontend-linux-x64:"
-          ls -la frontend-linux-x64
 
 #      - name: List Files (backend-artifact)
 #        run: |
@@ -118,7 +117,7 @@ jobs:
       - name: Print Detailed File Tree (frontend-linux-x64)
         run: |
           echo "Detailed File Tree for frontend-linux-x64:"
-          tree frontend-linux-x64
+          tree 
 
 #      - name: Print Detailed File Tree (backend-artifact)
 #        run: |
