@@ -107,6 +107,16 @@ jobs:
         run: |
           echo "Files in backend-artifact:"
           ls -la backend-artifact
+         
+      - name: Print Detailed File Tree (frontend-linux-x64)
+        run: |
+          echo "Detailed File Tree for frontend-linux-x64:"
+          tree frontend-linux-x64
+
+      - name: Print Detailed File Tree (backend-artifact)
+        run: |
+          echo "Detailed File Tree for backend-artifact:"
+          tree backend-artifact
 
       - uses: softprops/action-gh-release@v1
         with:
