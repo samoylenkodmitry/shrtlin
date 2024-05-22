@@ -32,3 +32,4 @@ server/ktor.pk8
 .env
 
 !/kotlin-js-store/yarn.lock
+!/all.md

@@ -75,12 +75,12 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: frontend-web
-          path: frontend-web/
+          path: frontend-web/dist
         continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: frontend-linux-x64
-          path: frontend-linux-x64/
+          path: frontend-linux-x64/dist
         continue-on-error: true
 #      - uses: actions/download-artifact@v3
 #        with:
@@ -90,7 +90,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: frontend-windows-x64
-          path: frontend-windows-x64/
+          path: frontend-windows-x64/dist
         continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
@@ -101,9 +101,9 @@ jobs:
         with:
           tag_name: ${{ github.ref }}
           files: |
-            frontend-web/*
-            frontend-linux-x64/*
-            frontend-windows-x64/*
+            frontend-web/dist/*
+            frontend-linux-x64/dist/*
+            frontend-windows-x64/dist/*
             backend-artifact/*
           prerelease: true
         env:
