@@ -52,23 +52,24 @@ jobs:
               composeApp/build/compose/binaries/${{ matrix.target }} 
             fi
 
-  build-backend:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Build Backend
-        run: ./gradlew :server:build
-      - uses: actions/upload-artifact@v3
-        with:
-          name: backend-artifact
-          path: server/build/libs/
+#  build-backend:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: actions/setup-java@v3
+#        with:
+#          distribution: 'temurin'
+#          java-version: '17'
+#      - name: Build Backend
+#        run: ./gradlew :server:build
+#      - uses: actions/upload-artifact@v3
+#        with:
+#          name: backend-artifact
+#          path: server/build/libs/
 
   create-release:
-    needs: [ build, build-backend ]
+#    needs: [ build, build-backend ]
+    needs: [ build ]
     runs-on: ubuntu-latest
     steps:
       #      - uses: actions/checkout@v3
@@ -118,12 +119,12 @@ jobs:
           echo "Detailed File Tree for backend-artifact:"
           tree backend-artifact
 
-      - uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ github.ref }}
-          files: |
-            frontend-linux-x64/dist/*
-            backend-artifact/*
-          prerelease: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#      - uses: softprops/action-gh-release@v1
+#        with:
+#          tag_name: ${{ github.ref }}
+#          files: |
+#            frontend-linux-x64/dist/*
+#            backend-artifact/*
+#          prerelease: true
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
