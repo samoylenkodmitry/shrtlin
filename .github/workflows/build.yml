@@ -13,23 +13,23 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            target: web
-            artifact_name: frontend-web
-            package_task: wasmJsBrowserDistribution
+          #          - os: ubuntu-latest
+          #            target: web
+          #            artifact_name: frontend-web
+          #            package_task: wasmJsBrowserDistribution
           - os: ubuntu-latest
             target: linux-x64
             artifact_name: frontend-linux-x64
             package_task: packageDeb
-# TODO: fix build on macOS            
-#          - os: macos-latest
-#            target: macos-x64
-#            artifact_name: frontend-macos-x64
-#            package_task: packageDmg
-          - os: windows-latest
-            target: windows-x64
-            artifact_name: frontend-windows-x64
-            package_task: packageMsi
+    # TODO: fix build on macOS            
+    #          - os: macos-latest
+    #            target: macos-x64
+    #            artifact_name: frontend-macos-x64
+    #            package_task: packageDmg
+    #          - os: windows-latest
+    #            target: windows-x64
+    #            artifact_name: frontend-windows-x64
+    #            package_task: packageMsi
     steps:
       - uses: actions/checkout@v3
 
@@ -68,42 +68,51 @@ jobs:
           path: server/build/libs/
 
   create-release:
-    needs: [build, build-backend]
+    needs: [ build, build-backend ]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/download-artifact@v3
-        with:
-          name: frontend-web
-          path: frontend-web/dist
-        continue-on-error: true
+      #      - uses: actions/checkout@v3
+      #      - uses: actions/download-artifact@v3
+      #        with:
+      #          name: frontend-web
+      #          path: frontend-web/dist
+
       - uses: actions/download-artifact@v3
         with:
           name: frontend-linux-x64
           path: frontend-linux-x64/dist
         continue-on-error: true
-#      - uses: actions/download-artifact@v3
-#        with:
-#          name: frontend-macos-x64
-#          path: frontend-macos-x64/
-#        continue-on-error: true
-      - uses: actions/download-artifact@v3
-        with:
-          name: frontend-windows-x64
-          path: frontend-windows-x64/dist
-        continue-on-error: true
+      #      - uses: actions/download-artifact@v3
+      #        with:
+      #          name: frontend-macos-x64
+      #          path: frontend-macos-x64/
+      #        continue-on-error: true
+      #      - uses: actions/download-artifact@v3
+      #        with:
+      #          name: frontend-windows-x64
+      #          path: frontend-windows-x64/dist
+      #        continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: backend-artifact
           path: backend-artifact/
         continue-on-error: true
+
+      - name: List Files (frontend-linux-x64)
+        run: |
+          echo "Files in frontend-linux-x64/dist:"
+          ls -la frontend-linux-x64/dist
+
+      - name: List Files (backend-artifact)
+        run: |
+          echo "Files in backend-artifact:"
+          ls -la backend-artifact
+
       - uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
           files: |
-            frontend-web/dist/*
             frontend-linux-x64/dist/*
-            frontend-windows-x64/dist/*
             backend-artifact/*
           prerelease: true
         env:
