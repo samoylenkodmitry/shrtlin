@@ -81,7 +81,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: frontend-linux-x64
-          path: frontend-linux-x64/dist
+          path: frontend-linux-x64
         continue-on-error: true
       #      - uses: actions/download-artifact@v3
       #        with:
@@ -93,38 +93,39 @@ jobs:
       #          name: frontend-windows-x64
       #          path: frontend-windows-x64/dist
       #        continue-on-error: true
-      - uses: actions/download-artifact@v3
-        with:
-          name: backend-artifact
-          path: backend-artifact/
-        continue-on-error: true
+#      - uses: actions/download-artifact@v3
+#        with:
+#          name: backend-artifact
+#          path: backend-artifact/
+#        continue-on-error: true
 
       - name: List Files (frontend-linux-x64)
         run: |
-          echo "Files in frontend-linux-x64/dist:"
-          ls -la frontend-linux-x64/dist
+          ls -lisa
+          echo "Files in frontend-linux-x64:"
+          ls -la frontend-linux-x64
 
-      - name: List Files (backend-artifact)
-        run: |
-          echo "Files in backend-artifact:"
-          ls -la backend-artifact
+#      - name: List Files (backend-artifact)
+#        run: |
+#          echo "Files in backend-artifact:"
+#          ls -la backend-artifact
          
       - name: Print Detailed File Tree (frontend-linux-x64)
         run: |
           echo "Detailed File Tree for frontend-linux-x64:"
           tree frontend-linux-x64
 
-      - name: Print Detailed File Tree (backend-artifact)
-        run: |
-          echo "Detailed File Tree for backend-artifact:"
-          tree backend-artifact
+#      - name: Print Detailed File Tree (backend-artifact)
+#        run: |
+#          echo "Detailed File Tree for backend-artifact:"
+#          tree backend-artifact
 
-#      - uses: softprops/action-gh-release@v1
-#        with:
-#          tag_name: ${{ github.ref }}
-#          files: |
-#            frontend-linux-x64/dist/*
+      - uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          files: |
+            frontend-linux-x64/composeApp/build/compose/binaries/main/deb/*
 #            backend-artifact/*
-#          prerelease: true
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
