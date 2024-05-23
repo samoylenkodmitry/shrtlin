@@ -60,7 +60,7 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
       - name: Build Backend
-        run: ./gradlew :server:build
+        run: ./gradlew :server:buildFatJar
       - uses: actions/upload-artifact@v3
         with:
           name: backend-artifact

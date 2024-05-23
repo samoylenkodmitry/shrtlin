@@ -10,6 +10,11 @@ application {
     mainClass.set("in.shrtl.app.ApplicationKt")
     applicationDefaultJvmArgs = listOf("-Dio.ktor.development=${extra["io.ktor.development"] ?: "false"}")
 }
+ktor {
+    fatJar {
+        archiveFileName.set("server-$version.jar")
+    }
+}
 
 dependencies {
     implementation(projects.shared)
