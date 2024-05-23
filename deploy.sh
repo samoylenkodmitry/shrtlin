@@ -1,11 +1,22 @@
 #!/bin/bash
-# --- Download Artifacts from Release ---
+# --- Configuration ---
+RELEASE_TAG="v_0.0.0.1_test" # Update with your desired release tag https://github.com/samoylenkodmitry/shrtlin/releases
+FRONTEND_ARTIFACT_NAME="frontend-web.zip"
+BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 
-wget https://github.com/samoylenkodmitry/shrtlin/releases/download/v1.0.1/frontend-artifact.zip
-unzip frontend-artifact.zip -d composeApp/build/distributions/
+# --- Functions for clarity and reusability ---
+download_artifact() {
+  local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$1"
+  wget -O "$1" "$artifact_url" || { echo "Download failed for $1"; exit 1; }
+}
 
-wget https://github.com/samoylenkodmitry/shrtlin/releases/download/v1.0.1/backend-artifact.jar 
-mv backend-artifact.jar server/build/libs/server-all.jar
+# --- Download Artifacts ---
+download_artifact "$FRONTEND_ARTIFACT_NAME"
+download_artifact "$BACKEND_ARTIFACT_NAME"
+
+# --- Prepare Artifacts ---
+unzip -o "$FRONTEND_ARTIFACT_NAME" -d composeApp/build/distributions/
+mv "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
 # --- Generate RSA Keys if not present ---
 
