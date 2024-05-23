@@ -21,11 +21,10 @@ jobs:
             target: deb
             artifact_name: frontend-linux-x64
             package_task: packageDeb
-    # TODO: fix build on macOS            
-    #          - os: macos-latest
-    #            target: macos-x64
-    #            artifact_name: frontend-macos-x64
-    #            package_task: packageDmg
+          - os: macos-latest
+            target: dmg
+            artifact_name: frontend-macos-x64
+            package_task: packageDmg
           - os: windows-latest
             target: msi
             artifact_name: frontend-windows-x64
@@ -87,11 +86,11 @@ jobs:
           name: frontend-linux-x64
           path: frontend-linux-x64
         continue-on-error: true
-      #      - uses: actions/download-artifact@v3
-      #        with:
-      #          name: frontend-macos-x64
-      #          path: frontend-macos-x64/
-      #        continue-on-error: true
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-macos-x64
+          path: frontend-macos-x64
+        continue-on-error: true
       - uses: actions/download-artifact@v3
         with:
           name: frontend-windows-x64
@@ -102,7 +101,10 @@ jobs:
           name: backend-artifact
           path: backend-artifact
         continue-on-error: true
-
+        
+      - name: Archive WASM Build
+        run: zip -r frontend-web.zip frontend-web/
+      
       - name: List Files
         run: |
           ls -lisa
@@ -119,8 +121,9 @@ jobs:
           files: |
             frontend-linux-x64/composeApp/build/compose/binaries/main/deb/*
             frontend-windows-x64/composeApp/build/compose/binaries/main/msi/*
+            frontend-macos-x64/composeApp/build/compose/binaries/main/dmg/*
             backend-artifact/*
-            frontend-web/composeApp/build/dist/wasmJs/productionExecutable/*
+            frontend-web.zip
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
