@@ -119,8 +119,8 @@ jobs:
           files: |
             frontend-linux-x64/composeApp/build/compose/binaries/main/deb/*
             frontend-windows-x64/composeApp/build/compose/binaries/main/msi/*
-            backend-artifact/
-            frontend-web/composeApp/build/dist/wasbJs/productionExecutable/*
+            backend-artifact/*
+            frontend-web/composeApp/build/dist/wasmJs/productionExecutable/*
           prerelease: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
