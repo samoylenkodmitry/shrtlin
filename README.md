@@ -35,7 +35,17 @@ Powered by a Ktor backend and PostgreSQL database.
 **Arch Linux Installation (Single Command):**
 
 ```bash
-sudo yay -S git jdk17-openjdk docker docker-compose postgresql --noconfirm 
+sudo yay -S git jdk17-openjdk docker docker-compose postgresql wget --noconfirm 
+```
+
+### Arch Linux extra preparation:
+```bash
+
+yay linux-headers #must have linux-headers installed
+sudo modprobe bridge br_netfilter overlay #must have bridge and br_netfilter modules loaded
+sudo systemctl enable docker
+sudo systemctl start docker
+systemctl status docker #check docker status
 ```
 
 **Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**

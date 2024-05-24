@@ -1,14 +1,28 @@
 #!/bin/bash
 # --- Configuration ---
-RELEASE_TAG="v_0.0.0.1_test" # Update with your desired release tag https://github.com/samoylenkodmitry/shrtlin/releases
+RELEASE_TAG="v_0.0.0.2_test" # Update with your desired release tag https://github.com/samoylenkodmitry/shrtlin/releases
 FRONTEND_ARTIFACT_NAME="frontend-web.zip"
 BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 
 # --- Functions for clarity and reusability ---
 download_artifact() {
+  # check if the file already exists
+  if [ -f "$1" ]; then
+    # ask the user if they want to overwrite the file
+    read -p "$1 already exists. Do you want to overwrite it? (y/n): " overwrite
+    if [ "$overwrite" != "y" ]; then
+      echo "Skipping download for $1"
+      return
+    fi
+  fi
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$1"
   wget -O "$1" "$artifact_url" || { echo "Download failed for $1"; exit 1; }
 }
+
+# --- Git Checkout on the tag, override conflicts ---
+git fetch --all
+git checkout "$RELEASE_TAG" || { echo "Failed to checkout $RELEASE_TAG"; exit 1; }
+git pull origin "$RELEASE_TAG" || { echo "Failed to pull $RELEASE_TAG"; exit 1; }
 
 # --- Download Artifacts ---
 download_artifact "$FRONTEND_ARTIFACT_NAME"
@@ -24,9 +38,6 @@ if [ ! -f "./server/ktor.pk8" ]; then
   echo "RSA keys not found, generating..."
   ./server/gen_new_rss_key.sh
   ./server/gen_jwks_from_key.sh 
-  # Securely store ktor.pk8 - adjust permissions
-  chmod 400 server/ktor.pk8 
-  chmod 400 server/ktor.key
 else 
   echo "RSA keys found, skipping generation..."
 fi
@@ -47,7 +58,8 @@ if [ ! -f "./.env" ]; then
 
   echo "Database credentials updated in .env"
 fi
-export $(grep -v '^#' .env | xargs) 
+
+source ./.env
 
 # --- Create Docker Secrets (only on first run) --- 
 
