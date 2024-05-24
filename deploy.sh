@@ -36,6 +36,8 @@ mv "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
 if [ ! -f "./server/ktor.pk8" ]; then
   echo "RSA keys not found, generating..."
+  chmod +x ./server/gen_new_rss_key.sh
+  chmod +x ./server/gen_jwks_from_key.sh
   ./server/gen_new_rss_key.sh
   ./server/gen_jwks_from_key.sh 
 else 

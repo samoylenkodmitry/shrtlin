@@ -35,7 +35,7 @@ Powered by a Ktor backend and PostgreSQL database.
 **Arch Linux Installation (Single Command):**
 
 ```bash
-sudo yay -S git jdk17-openjdk docker docker-compose postgresql wget --noconfirm 
+sudo yay -S git jdk17-openjdk docker docker-compose postgresql wget unzip --noconfirm 
 ```
 
 ### Arch Linux extra preparation:
