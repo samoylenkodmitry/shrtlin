@@ -1,6 +1,7 @@
 #!/bin/bash
 # --- Configuration ---
 RELEASE_TAG="v_0.0.0.2_test" # Update with your desired release tag https://github.com/samoylenkodmitry/shrtlin/releases
+CHECKOUT_TAG="v_0.0.0.3_test" # Update with your desired release tag
 FRONTEND_ARTIFACT_NAME="frontend-web.zip"
 BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 
@@ -21,8 +22,8 @@ download_artifact() {
 
 # --- Git Checkout on the tag, override conflicts ---
 git fetch --all
-git checkout "$RELEASE_TAG" || { echo "Failed to checkout $RELEASE_TAG"; exit 1; }
-git pull origin "$RELEASE_TAG" || { echo "Failed to pull $RELEASE_TAG"; exit 1; }
+git checkout "$CHECKOUT_TAG" || { echo "Failed to checkout $CHECKOUT_TAG"; exit 1; }
+git pull origin "$CHECKOUT_TAG" || { echo "Failed to pull $CHECKOUT_TAG"; exit 1; }
 
 # --- Download Artifacts ---
 download_artifact "$FRONTEND_ARTIFACT_NAME"
