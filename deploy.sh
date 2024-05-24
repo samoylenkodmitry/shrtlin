@@ -30,6 +30,10 @@ download_artifact "$FRONTEND_ARTIFACT_NAME"
 download_artifact "$BACKEND_ARTIFACT_NAME"
 
 # --- Prepare Artifacts ---
+## make dirs if not exist
+mkdir -p composeApp/build/distributions/
+mkdir -p server/build/libs/
+
 unzip -o "$FRONTEND_ARTIFACT_NAME" -d composeApp/build/distributions/
 mv "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
