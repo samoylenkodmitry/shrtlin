@@ -53,12 +53,6 @@ services:
       - db_username
       - db_password
 
-secrets:
-  db_username:
-    external: true
-  db_password:
-    external: true
-
 volumes:
   certbot-etc:
   certbot-var:
