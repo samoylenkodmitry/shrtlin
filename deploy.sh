@@ -51,6 +51,9 @@ if [ ! -f "./server/ktor.pk8" ]; then
   chmod +x ./server/gen_jwks_from_key.sh
   ./server/gen_new_rss_key.sh
   ./server/gen_jwks_from_key.sh
+  # move the generated keys to the server directory
+  mv ktor.pk8 server/ktor.pk8
+  mv jwks.json server/jwks.json
 else
   echo "RSA keys found, skipping generation."
 fi
