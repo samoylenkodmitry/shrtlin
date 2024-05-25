@@ -40,7 +40,7 @@ download_artifact "$BACKEND_ARTIFACT_NAME"
 
 mkdir -p server/build/libs/
 unzip -o "$FRONTEND_ARTIFACT_NAME"
-# move everything from frontend-web/composeApp to ./composeApp forcefully overriding existing files
+rm -rf composeApp/build/
 mv -f frontend-web/composeApp/* ./composeApp
 cp "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
@@ -50,9 +50,10 @@ if [ ! -f "./server/ktor.pk8" ]; then
   chmod +x ./server/gen_new_rss_key.sh
   chmod +x ./server/gen_jwks_from_key.sh
   ./server/gen_new_rss_key.sh
-  ./server/gen_jwks_from_key.sh
-  # move the generated keys to the server directory
+  mv ktor.pub server/ktor.pub
+  mv ktor.key server/ktor.key
   mv ktor.pk8 server/ktor.pk8
+  ./server/gen_jwks_from_key.sh
   mv jwks.json server/jwks.json
 else
   echo "RSA keys found, skipping generation."
