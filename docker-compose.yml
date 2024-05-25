@@ -4,8 +4,12 @@ services:
     ports:
       - "8080:8080"
     secrets:
-      - db_username
-      - db_password
+      - source: db_username
+        target: /run/secrets/db_username
+        mode: 444
+      - source: db_password
+        target: /run/secrets/db_password
+        mode: 444
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=shrtl.in"
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.PROXY_PASS=http://backend:8080"
@@ -44,14 +48,19 @@ services:
       POSTGRES_DB: shrtlin
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # ports: # Uncomment and expose if you need external access to the database 
-    #   - "5432:5432" 
+    secrets:
+      - source: db_username
+        target: /run/secrets/db_username
+        mode: 444
+      - source: db_password
+        target: /run/secrets/db_password
+        mode: 444
 
 secrets:
-    db_username:
-        external: true
-    db_password:
-        external: true
+  db_username:
+    external: true
+  db_password:
+    external: true
 
 volumes:
   certbot-etc:
