@@ -47,6 +47,12 @@ services:
     # ports: # Uncomment and expose if you need external access to the database 
     #   - "5432:5432" 
 
+secrets:
+    db_username:
+        external: true
+    db_password:
+        external: true
+
 volumes:
   certbot-etc:
   certbot-var:
