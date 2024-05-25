@@ -66,10 +66,9 @@ if [ ! "$(docker secret ls -q | grep db_username)" ]; then
 
   # --- Create Docker Secrets ---
   echo "Creating Docker secrets..."
-  docker secret create db_username "$DB_USER"
-  # Escape special characters in the password for Docker secret
-  ESCAPED_DB_PASSWORD=$(printf '%q' "$DB_PASSWORD") 
-  docker secret create db_password "$ESCAPED_DB_PASSWORD"
+  # Create secrets using 'echo' and piping to 'docker secret create'
+  echo "$DB_USER" | docker secret create db_username -
+  echo "$DB_PASSWORD" | docker secret create db_password - 
 else
   echo "Docker secrets already exist, skipping creation."
 fi
