@@ -1,7 +1,7 @@
 #!/bin/bash
 # --- Configuration ---
 RELEASE_TAG="v_0.0.0.2_test" # Update with your desired release tag https://github.com/samoylenkodmitry/shrtlin/releases
-CHECKOUT_TAG="no_build_0.0.0.4_test" # Update with your desired release tag
+CHECKOUT_TAG="no_build_0.0.0.5_test" # Update with your desired release tag
 FRONTEND_ARTIFACT_NAME="frontend-web.zip"
 BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 

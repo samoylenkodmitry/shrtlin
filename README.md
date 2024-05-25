@@ -46,6 +46,8 @@ sudo modprobe bridge br_netfilter overlay #must have bridge and br_netfilter mod
 sudo systemctl enable docker
 sudo systemctl start docker
 systemctl status docker #check docker status
+sudo usermod -aG docker $USER #add user to docker group
+
 ```
 
 **Set JAVA_HOME for oh-my-zsh (Copy-paste this into your `~/.zshrc`):**
