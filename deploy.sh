@@ -40,8 +40,8 @@ download_artifact "$BACKEND_ARTIFACT_NAME"
 
 mkdir -p server/build/libs/
 unzip -o "$FRONTEND_ARTIFACT_NAME"
-# move everything from frontend-web/composeApp to ./composeApp
-mv frontend-web/composeApp/* ./composeApp
+# move everything from frontend-web/composeApp to ./composeApp forcefully overriding existing files
+mv -f frontend-web/composeApp/* ./composeApp
 cp "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
 # --- Generate RSA Keys (if not present) ---
