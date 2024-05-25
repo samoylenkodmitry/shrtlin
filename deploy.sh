@@ -11,8 +11,8 @@ BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 # --- Functions for clarity and reusability ---
 download_artifact() {
   if [ -f "$1" ]; then
-    read -p "$1 already exists. Overwrite? (y/n): " overwrite 
-    [ "$overwrite" != "y" ] && echo "Skipping download for $1" && return
+    read -p "$1 already exists. Overwrite? (y/n): " overwrite
+    [ "$overwrite" != "y" ] && echo "Skipping download for $1" && return 0
   fi
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$1"
   wget -O "$1" "$artifact_url" || { echo "Download failed for $1"; exit 1; }
@@ -42,7 +42,7 @@ mkdir -p composeApp/build/distributions/
 mkdir -p server/build/libs/
 
 unzip -o "$FRONTEND_ARTIFACT_NAME" -d composeApp/build/distributions/
-mv "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
+cp "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
 # --- Generate RSA Keys (if not present) ---
 if [ ! -f "./server/ktor.pk8" ]; then
