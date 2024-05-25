@@ -47,6 +47,7 @@ sudo systemctl enable docker
 sudo systemctl start docker
 systemctl status docker #check docker status
 sudo usermod -aG docker $USER #add user to docker group
+docker swarm init #init docker swarm for storing secrets
 
 ```
 
