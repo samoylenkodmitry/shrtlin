@@ -17,6 +17,9 @@ download_artifact() {
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$1"
   wget -O "$1" "$artifact_url" || { echo "Download failed for $1"; exit 1; }
 }
+# --- Git Reset and Checkout ---
+echo "Resetting local changes (hard reset)..."
+git reset --hard origin/main  # Forcefully reset to remote main
 
 # --- Git Checkout ---
 git fetch --all 
