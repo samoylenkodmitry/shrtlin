@@ -62,7 +62,7 @@ if [ ! -f "./.env" ]; then
 fi 
 
 # --- Prompt for Database Credentials (only on first run) ---
-if [ ! "$(docker secret ls -q | grep db_username)" ]; then 
+if [ ! "$(docker secret ls | grep db_username)" ]; then 
   read -p "Enter database username: " DB_USER
   read -sp "Enter database password: " DB_PASSWORD
   echo  # Add a newline after password input
