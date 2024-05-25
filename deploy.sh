@@ -38,10 +38,8 @@ fi
 download_artifact "$FRONTEND_ARTIFACT_NAME"
 download_artifact "$BACKEND_ARTIFACT_NAME"
 
-mkdir -p composeApp/build/distributions/
 mkdir -p server/build/libs/
-
-unzip -o "$FRONTEND_ARTIFACT_NAME" -d composeApp/build/distributions/
+unzip -o "$FRONTEND_ARTIFACT_NAME"
 cp "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar
 
 # --- Generate RSA Keys (if not present) ---
