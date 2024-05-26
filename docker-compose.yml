@@ -31,8 +31,6 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
       - dhparam:/etc/nginx/dhparam
-    depends_on:
-      - letsencrypt-companion
 
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
@@ -56,11 +54,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./db_username.txt:/run/secrets/db_username.txt:ro
       - ./db_password.txt:/run/secrets/db_password.txt:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_username.txt) -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 volumes:
   certbot-etc:
