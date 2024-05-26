@@ -31,5 +31,9 @@ server/ktor.pk8
 # Ignore .env file
 .env
 
+# For the deployment
+db_username.txt
+db_password.txt
+
 !/kotlin-js-store/yarn.lock
 !/all.md
