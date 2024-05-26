@@ -2,7 +2,7 @@ services:
   backend:
     build: ./server/
     ports:
-      - "8080:8080" # You might not need this port if accessing only through the proxy
+      - "8080:8080" # Might not need this port if only accessing through proxy
     environment:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -32,7 +32,7 @@ services:
       - dhparam:/etc/nginx/dhparam
     depends_on:
       - letsencrypt-companion
-  
+
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:
@@ -48,11 +48,18 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_USER: ${DB_USERNAME}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_USER_FILE: /run/secrets/db_username.txt
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password.txt
       POSTGRES_DB: shrtlin
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./db_username.txt:/run/secrets/db_username.txt:ro
+      - ./db_password.txt:/run/secrets/db_password.txt:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $(cat /run/secrets/db_username.txt) -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   certbot-etc:

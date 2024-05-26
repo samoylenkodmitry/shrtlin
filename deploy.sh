@@ -8,7 +8,7 @@ BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 # Otherwise, the latest commit on 'main' will be used.
 # CHECKOUT_TAG="your_tag_here" 
 
-# --- Functions for clarity and reusability ---
+# --- Functions ---
 download_artifact() {
   if [ -f "$1" ]; then
     read -p "$1 already exists. Overwrite? (y/n): " overwrite
@@ -17,9 +17,10 @@ download_artifact() {
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$1"
   wget -O "$1" "$artifact_url" || { echo "Download failed for $1"; exit 1; }
 }
+
 # --- Git Reset and Checkout ---
 echo "Resetting local changes (hard reset)..."
-git reset --hard origin/main  # Forcefully reset to remote main
+git reset --hard origin/main 
 
 # --- Git Checkout ---
 git fetch --all 
@@ -63,7 +64,7 @@ fi
 if [ ! -f "./.env" ]; then
   echo "Copying template.env to .env"
   cp ./template.env ./.env
-fi 
+fi
 
 # --- Load .env file ---
 source .env
@@ -72,30 +73,28 @@ source .env
 if [ -z "$DOMAIN" ]; then
   read -p "Enter your domain (e.g., example.com): " DOMAIN
   echo "DOMAIN=$DOMAIN" >> .env 
-  # load .env file again to reflect new changes
+  # reload .env to reflect the change
   source .env
 else
   echo "Domain found in .env, skipping prompt."
 fi
 
 # --- Prompt for Database Credentials (only on first run) ---
-if [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ]; then 
+if [ ! -f db_username.txt ] || [ ! -f db_password.txt ]; then
   read -p "Enter database username: " DB_USERNAME
-  read -sp "Enter database password: " DB_PASSWORD
-  echo  # Add a newline after password input
+  echo "$DB_USERNAME" > db_username.txt
+  chmod 600 db_username.txt 
+  echo "Database username stored in db_username.txt"
 
-  # --- Store credentials in .env ---
-  echo "Storing database credentials in .env"
-  echo "DB_USERNAME=$DB_USERNAME" >> .env
-  echo "DB_PASSWORD=$DB_PASSWORD" >> .env
-  
-  # load .env file again to reflect new changes
-  source .env
+  read -sp "Enter database password: " DB_PASSWORD
+  echo "$DB_PASSWORD" > db_password.txt
+  chmod 600 db_password.txt
+  echo "Database password stored in db_password.txt"
 else
-  echo "Database credentials found in .env, skipping prompt."
+  echo "Database credential files found, skipping prompts." 
 fi
 
 # --- Start Docker Compose ---
-docker-compose up -d
+docker-compose up -d --build 
 
 echo "Deployment complete!"
