@@ -68,6 +68,16 @@ fi
 # --- Load .env file ---
 source .env
 
+# --- Prompt for Domain (only on first run) ---
+if [ -z "$DOMAIN" ]; then
+  read -p "Enter your domain (e.g., example.com): " DOMAIN
+  echo "DOMAIN=$DOMAIN" >> .env 
+  # load .env file again to reflect new changes
+  source .env
+else
+  echo "Domain found in .env, skipping prompt."
+fi
+
 # --- Prompt for Database Credentials (only on first run) ---
 if [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ]; then 
   read -p "Enter database username: " DB_USERNAME
@@ -78,6 +88,9 @@ if [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ]; then
   echo "Storing database credentials in .env"
   echo "DB_USERNAME=$DB_USERNAME" >> .env
   echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+  
+  # load .env file again to reflect new changes
+  source .env
 else
   echo "Database credentials found in .env, skipping prompt."
 fi

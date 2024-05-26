@@ -2,20 +2,25 @@ services:
   backend:
     build: ./server/
     ports:
-      - "8080:8080"
+      - "8080:8080" # You might not need this port if accessing only through the proxy
     environment:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
+    depends_on:
+      - postgres
     labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=shrtl.in"
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=$DOMAIN"
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.PROXY_PASS=http://backend:8080"
+
   frontend:
     build: ./composeApp
-    ports:
-      - "80:80"
+    # No need to expose port 80 here, Nginx will handle it
+    depends_on:
+      - backend
     labels:
-      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=shrtl.in"
+      - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=$DOMAIN"
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.PROXY_PASS=http://frontend:80"
+
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
     ports:
@@ -25,6 +30,9 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
       - dhparam:/etc/nginx/dhparam
+    depends_on:
+      - letsencrypt-companion
+  
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
     volumes:
@@ -35,6 +43,7 @@ services:
       - nginx-proxy
     environment:
       NGINX_PROXY_CONTAINER: "nginx-proxy"
+
   postgres:
     image: postgres:latest
     restart: always
