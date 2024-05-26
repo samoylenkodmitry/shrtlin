@@ -1,6 +1,8 @@
 services:
   backend:
-    build: ./server/
+    build:
+      context: ./server
+      dockerfile: Dockerfile
     ports:
       - "8080:8080" # Might not need this port if only accessing through proxy
     environment:
