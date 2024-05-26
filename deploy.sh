@@ -11,7 +11,7 @@ BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 # --- Functions ---
 download_artifact() {
   if [ -f "$1" ]; then
-    read -p "$1 already exists. Overwrite? (y/n): " overwrite
+    read -p "$1 already exists. Overwrite? (N/y): " overwrite
     [ "$overwrite" != "y" ] && echo "Skipping download for $1" && return 0
   fi
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$1"

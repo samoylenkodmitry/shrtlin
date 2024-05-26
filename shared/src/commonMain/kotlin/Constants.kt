@@ -4,11 +4,11 @@ const val SERVER_PORT = 8080
 
 // POW Challenge difficulty prefix bytes in hex format
 const val DIFFICULTY_PREFIX = "00000"
-const val DEBUG = true
+const val IS_LOCALHOST = false // Set to true to run locally
 val hostDebug = "0.0.0.0"
 val hostRelease = "shrtl.in"
-val hostName = if (DEBUG) hostDebug else hostRelease
-val hostUrl = if (DEBUG) "http://$hostName:$SERVER_PORT" else "https://$hostName"
+val hostName = if (IS_LOCALHOST) hostDebug else hostRelease
+val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
 
 class EndpointWithArg<A : Any, R : Any>(val arg: A?, val aCls: KClass<A>, val path: String, val rCls: KClass<R>)
 

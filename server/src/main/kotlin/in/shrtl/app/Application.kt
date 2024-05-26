@@ -4,11 +4,11 @@ package `in`.shrtl.app
 
 import AuthResult
 import Challenge
-import DEBUG
 import DIFFICULTY_PREFIX
 import EndpointWithArg
 import GetUrlsRequest
 import Greeting
+import IS_LOCALHOST
 import ProofOfWork
 import RefreshResult
 import RemoveUrlRequest
@@ -73,30 +73,34 @@ object Users : LongIdTable() {
 }
 
 val hostDebug = "0.0.0.0"
-val hostRelease = System.getenv("DOMAIN") ?: "shrtl.in"
-val hostName = if (DEBUG) hostDebug else hostRelease
-val hostUrl = if (DEBUG) "http://$hostName:$SERVER_PORT" else "https://$hostName"
+val hostRelease =
+    System.getenv("DOMAIN").also {
+        println("DOMAIN from env: $it")
+    } ?: "shrtl.in"
+val hostName = if (IS_LOCALHOST) hostDebug else hostRelease
+val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
 
 fun initDB() {
     Database.connect(
         url =
-            if (DEBUG) {
+            if (IS_LOCALHOST) {
                 "jdbc:postgresql://localhost:5432/shrtlin"
             } else {
-                System.getenv("DATABASE_URL")
+                System.getenv("DATABASE_URL").also { println("DATABASE_URL from env: $it") }
             },
         driver = "org.postgresql.Driver",
         user =
-            if (DEBUG) {
+            if (IS_LOCALHOST) {
                 "user"
             } else {
-                System.getenv("DATABASE_USER")
+                System.getenv("DATABASE_USER").also { println("DATABASE_USER from env: $it") }
             },
         password =
-            if (DEBUG) {
+            if (IS_LOCALHOST) {
                 "password"
             } else {
                 System.getenv("DATABASE_PASSWORD")
+                    .also { println("DATABASE_PASSWORD from env.isNullOrEmpty?: ${it.isNullOrEmpty()}") }
             },
     )
     transaction {
@@ -105,7 +109,7 @@ fun initDB() {
 }
 
 private const val CLAIM_USER_ID = "uid"
-val privateKeyPath = if (DEBUG) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
+val privateKeyPath = if (IS_LOCALHOST) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
 
 // https://github.com/ktorio/ktor-documentation/blob/2.3.10/codeSnippets/snippets/auth-jwt-rs256/src/main/kotlin/com/example/Application.kt
 fun Application.module() {
