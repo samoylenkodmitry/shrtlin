@@ -4,8 +4,9 @@ services:
     ports:
       - "8080:8080" # Might not need this port if only accessing through proxy
     environment:
-      - DB_USERNAME=${DB_USERNAME}
-      - DB_PASSWORD=${DB_PASSWORD}
+      - DOMAIN=$DOMAIN
+      - DB_USERNAME=$(cat db_username.txt)
+      - DB_PASSWORD=$(cat db_password.txt)
     depends_on:
       - postgres
     labels:
