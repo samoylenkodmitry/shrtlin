@@ -1,4 +1,8 @@
-@file:Suppress("ktlint:standard:no-wildcard-imports", "ktlint:standard:package-name")
+@file:Suppress(
+    "ktlint:standard:no-wildcard-imports",
+    "ktlint:standard:package-name",
+    "NestedLambdaShadowedImplicitParameter",
+)
 
 package `in`.shrtl.app
 
@@ -72,12 +76,12 @@ object Users : LongIdTable() {
     val challenge = varchar("challenge", 2048).uniqueIndex()
 }
 
-val hostDebug = "0.0.0.0"
+const val HOST_DEBUG = "0.0.0.0"
 val hostRelease =
     System.getenv("DOMAIN").also {
         println("DOMAIN from env: $it")
     } ?: "shrtl.in"
-val hostName = if (IS_LOCALHOST) hostDebug else hostRelease
+val hostName = if (IS_LOCALHOST) HOST_DEBUG else hostRelease
 val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
 
 fun initDB() {
@@ -87,20 +91,21 @@ fun initDB() {
                 "jdbc:postgresql://localhost:5432/shrtlin"
             } else {
                 System.getenv("DATABASE_URL").also { println("DATABASE_URL from env: $it") }
+                    ?: "jdbc:postgresql://postgress:5432/shrtlin"
             },
         driver = "org.postgresql.Driver",
         user =
             if (IS_LOCALHOST) {
                 "user"
             } else {
-                System.getenv("DATABASE_USER").also { println("DATABASE_USER from env: $it") }
+                System.getenv("DATABASE_USER").also { println("DATABASE_USER from env: $it") } ?: "user"
             },
         password =
             if (IS_LOCALHOST) {
                 "password"
             } else {
                 System.getenv("DATABASE_PASSWORD")
-                    .also { println("DATABASE_PASSWORD from env.isNullOrEmpty?: ${it.isNullOrEmpty()}") }
+                    .also { println("DATABASE_PASSWORD from env.isNullOrEmpty?: ${it.isNullOrEmpty()}") } ?: "password"
             },
     )
     transaction {
@@ -140,7 +145,7 @@ fun Application.module() {
                     null
                 }
             }
-            challenge { defaultScheme, realm ->
+            challenge { _, _ ->
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or expired")
             }
         }
@@ -465,6 +470,7 @@ fun getUser(id: Long) =
         }.singleOrNull()
     }
 
+@Suppress("UNUSED_PARAMETER")
 suspend inline fun <reified A : Any, reified R : Any> RoutingContext.receiveArgs(
     e: EndpointWithArg<A, R>,
     makeResult: RoutingContext.(A) -> R?,

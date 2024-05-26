@@ -7,8 +7,8 @@ services:
       - "8080:8080" # Might not need this port if only accessing through proxy
     environment:
       - DOMAIN=$DOMAIN
-      - DB_USERNAME=$(cat db_username.txt)
-      - DB_PASSWORD=$(cat db_password.txt)
+      - DATABASE_USER=$(cat db_username.txt)
+      - DATABASE_PASSWORD=$(cat db_password.txt)
       - DATABASE_URL=$DATABASE_URL
     depends_on:
       - postgres
