@@ -9,6 +9,7 @@ services:
       - DOMAIN=$DOMAIN
       - DB_USERNAME=$(cat db_username.txt)
       - DB_PASSWORD=$(cat db_password.txt)
+      - DATABASE_URL=$DATABASE_URL
     depends_on:
       - postgres
     labels:
@@ -33,6 +34,7 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
       - dhparam:/etc/nginx/dhparam
+      - /var/run/docker.sock:/tmp/docker.sock:ro
 
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
@@ -41,6 +43,7 @@ services:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
       - dhparam:/etc/nginx/dhparam
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - nginx-proxy
     environment:
