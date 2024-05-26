@@ -1,16 +1,11 @@
-version: "3.8" # Swarm requires version 3 or later
-
 services:
   backend:
     build: ./server/
     ports:
       - "8080:8080"
     environment:
-      - DB_USERNAME_FILE=/run/secrets/db_username
-      - DB_PASSWORD_FILE=/run/secrets/db_password
-    secrets:
-      - db_username
-      - db_password
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=shrtl.in"
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.PROXY_PASS=http://backend:8080"
@@ -44,14 +39,11 @@ services:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_USER_FILE: /run/secrets/db_username
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: shrtlin
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    secrets:
-      - db_username
-      - db_password
 
 volumes:
   certbot-etc:
