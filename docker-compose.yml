@@ -4,17 +4,20 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - "8080:8080" # Might not need this port if only accessing through proxy
+      - "8080:8080"  # Optional if only accessed via proxy
     environment:
       - DOMAIN=$DOMAIN
-      - DATABASE_USER=$(cat db_username.txt)
-      - DATABASE_PASSWORD=$(cat db_password.txt)
       - DATABASE_URL=$DATABASE_URL
+      - DATABASE_USER_FILE=/run/secrets/db_username
+      - DATABASE_PASSWORD_FILE=/run/secrets/db_password
     depends_on:
       - postgres
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=$DOMAIN"
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.PROXY_PASS=http://backend:8080"
+    secrets:
+      - db_username
+      - db_password
 
   frontend:
     build: ./composeApp
@@ -48,19 +51,20 @@ services:
       - nginx-proxy
     environment:
       NGINX_PROXY_CONTAINER: "nginx-proxy"
-      NGINX_DOCKER_GEN_CONTAINER: "" # skip docker-gen check
-
+      NGINX_DOCKER_GEN_CONTAINER: ""
+  
   postgres:
     image: postgres:latest
     restart: always
     environment:
-      POSTGRES_USER_FILE: /run/secrets/db_username.txt
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password.txt
+      POSTGRES_USER_FILE: /run/secrets/db_username
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
       POSTGRES_DB: shrtlin
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./db_username.txt:/run/secrets/db_username.txt:ro
-      - ./db_password.txt:/run/secrets/db_password.txt:ro
+    secrets:
+      - db_username
+      - db_password
 
 volumes:
   certbot-etc:
@@ -72,3 +76,9 @@ volumes:
       device: /tmp/dhparam
       o: bind
   postgres_data:
+
+secrets:
+  db_username:
+    file: ./db_username.txt
+  db_password:
+    file: ./db_password.txt

@@ -98,14 +98,15 @@ fun initDB() {
             if (IS_LOCALHOST) {
                 "user"
             } else {
-                System.getenv("DATABASE_USER").also { println("DATABASE_USER from env: $it") } ?: "user"
+                System.getenv("DATABASE_USER_FILE")?.let { File(it).readText().trim() }
+                    .also { println("DATABASE_USER from file: $it") } ?: "user"
             },
         password =
             if (IS_LOCALHOST) {
                 "password"
             } else {
-                System.getenv("DATABASE_PASSWORD")
-                    .also { println("DATABASE_PASSWORD from env.isNullOrEmpty?: ${it.isNullOrEmpty()}") } ?: "password"
+                System.getenv("DATABASE_PASSWORD_FILE")?.let { File(it).readText().trim() }
+                    .also { println("DATABASE_PASSWORD from file isNullOrEmpty?: ${it.isNullOrEmpty()}") } ?: "password"
             },
     )
     transaction {
