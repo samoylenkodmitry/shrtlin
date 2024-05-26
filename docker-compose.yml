@@ -17,15 +17,15 @@ services:
 
   frontend:
     build: ./composeApp
-    # No need to expose port 80 here, Nginx will handle it
     depends_on:
-      - backend
+      - nginx-proxy
     labels:
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.VIRTUAL_HOST=$DOMAIN"
       - "com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy.PROXY_PASS=http://frontend:80"
 
   nginx-proxy:
     image: jwilder/nginx-proxy:alpine
+    restart: always
     ports:
       - "80:80"
       - "443:443"
@@ -36,6 +36,7 @@ services:
 
   letsencrypt-companion:
     image: jrcs/letsencrypt-nginx-proxy-companion
+    restart: always
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
