@@ -65,19 +65,21 @@ if [ ! -f "./.env" ]; then
   cp ./template.env ./.env
 fi 
 
+# --- Load .env file ---
+source .env
+
 # --- Prompt for Database Credentials (only on first run) ---
-if [ ! "$(docker secret ls | grep db_username)" ]; then 
-  read -p "Enter database username: " DB_USER
+if [ -z "$DB_USERNAME" ] || [ -z "$DB_PASSWORD" ]; then 
+  read -p "Enter database username: " DB_USERNAME
   read -sp "Enter database password: " DB_PASSWORD
   echo  # Add a newline after password input
 
-  # --- Create Docker Secrets ---
-  echo "Creating Docker secrets..."
-  # Create secrets using 'echo' and piping to 'docker secret create'
-  echo "$DB_USER" | docker secret create db_username -
-  echo "$DB_PASSWORD" | docker secret create db_password - 
+  # --- Store credentials in .env ---
+  echo "Storing database credentials in .env"
+  echo "DB_USERNAME=$DB_USERNAME" >> .env
+  echo "DB_PASSWORD=$DB_PASSWORD" >> .env
 else
-  echo "Docker secrets already exist, skipping creation."
+  echo "Database credentials found in .env, skipping prompt."
 fi
 
 # --- Start Docker Compose ---
