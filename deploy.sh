@@ -35,6 +35,12 @@ else
   git checkout "$CHECKOUT_TAG" || { echo "Failed to checkout $CHECKOUT_TAG"; exit 1; }
 fi
 
+# --- Create dhparam directory if it doesn't exist ---
+if [ ! -d "/tmp/dhparam" ]; then
+    sudo mkdir /tmp/dhparam
+    sudo chmod 777 /tmp/dhparam  
+fi
+
 # --- Download and Prepare Artifacts ---
 download_artifact "$FRONTEND_ARTIFACT_NAME"
 download_artifact "$BACKEND_ARTIFACT_NAME"
