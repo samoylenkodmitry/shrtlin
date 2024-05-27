@@ -117,6 +117,8 @@ fun initDB() {
 private const val CLAIM_USER_ID = "uid"
 val privateKeyPath = if (IS_LOCALHOST) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
 
+private val certsPath = if (IS_LOCALHOST) "./server/certs" else "/run/secrets/certs"
+
 // https://github.com/ktorio/ktor-documentation/blob/2.3.10/codeSnippets/snippets/auth-jwt-rs256/src/main/kotlin/com/example/Application.kt
 fun Application.module() {
     install(ContentNegotiation) {
@@ -157,7 +159,7 @@ fun Application.module() {
             println("Favicon requested")
             call.respondText("")
         }
-        staticFiles(".well-known", File("./server/certs"), "jwks.json")
+        staticFiles(".well-known", File(certsPath), "jwks.json")
         get(Endpoints.powGet.path) {
             call.respond(issueChallenge(jwtAlgorithm))
         }

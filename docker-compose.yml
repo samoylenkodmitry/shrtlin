@@ -10,7 +10,7 @@ services:
       - DATABASE_PASSWORD_FILE=/run/secrets/db_password
     volumes:
       - ./server/ktor.pk8:/run/secrets/ktor_pk8:ro
-      - ./server/jwks.json:./server/certs/jwks.json:ro
+      - ./server/jwks.json:/run/secrets/certs/jwks.json:ro
     depends_on:
       - postgres
     labels:

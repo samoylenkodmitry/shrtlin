@@ -6,9 +6,6 @@ WORKDIR /app
 # Copy the JAR file
 COPY ./build/libs/server-all.jar /app/server.jar
 
-# Copy the JWKS file 
-COPY ./certs/jwks.json /app/certs/jwks.json 
-
 # Expose the port
 EXPOSE 8080
 
