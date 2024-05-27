@@ -117,6 +117,20 @@ else
   echo "Database credential files found, skipping prompts." 
 fi
 
+# --- Check for Docker network "proxy-tier" ---
+if [ -z "$(docker network ls --filter name=proxy-tier -q)" ]; then
+  # ask to create network
+  read -p "Docker network 'proxy-tier' not found. Create 'proxy-tier' network? (Y/n): " create_network
+  if [ "$create_network" == "n" ]; then
+    echo "Skipping network creation. Exiting..."
+    exit 0
+  fi
+  echo "Creating Docker network 'proxy-tier'..."
+  docker network create proxy-tier
+else
+  echo "Docker network 'proxy-tier' found."
+fi
+
 # --- Start Docker Compose ---
 start_docker_service() {
   local service_name=$1
