@@ -1,6 +1,8 @@
 services:
   frontend:
-    build: .
+    build:
+      context: ../..
+      dockerfile: dockers/frontend/Dockerfile
     container_name: frontend
     restart: always
     networks:
