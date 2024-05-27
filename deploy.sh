@@ -127,7 +127,7 @@ start_docker_service() {
     [ "$start_service" == "n" ] && echo "Skipping $service_name start." && return 0
     echo "Starting $service_name..."
     cd $service_dir
-    docker-compose up -d
+    docker-compose up -d --build
     cd ../..
   else
     echo "$service_name already running."
