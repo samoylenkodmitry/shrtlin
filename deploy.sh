@@ -135,7 +135,10 @@ start_docker_service() {
     read -p "Restart $service_name? (y/N): " restart_service
     if [ "$restart_service" == "y" ]; then
       echo "Restarting $service_name..."
-      docker-compose restart $service_name
+      cd $service_dir
+      docker-compose down
+      docker-compose up -d --build
+      cd ../..
     fi
   fi
 }
