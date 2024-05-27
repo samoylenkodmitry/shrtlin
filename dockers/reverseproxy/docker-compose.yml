@@ -33,6 +33,8 @@ services:
       - acme:/etc/acme.sh
     environment:
       - NGINX_PROXY_CONTAINER=nginx-proxy
+      - ACME_CA_URI=https://acme.zerossl.com/v2/DV90
+      - ZEROSSL_API_KEY=$ZEROSSL_API_KEY
 
 networks:
   proxy-tier:

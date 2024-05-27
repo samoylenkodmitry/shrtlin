@@ -113,6 +113,16 @@ else
   echo "Letsencrypt email found in .env, skipping prompt."
 fi
 
+# --- Prompt ZEROSSL_API_KEY (only on first run) ---
+if [ -z "$ZEROSSL_API_KEY" ]; then
+  read -p "Enter your ZeroSSL API key: " ZEROSSL_API_KEY
+  echo "ZEROSSL_API_KEY=$ZEROSSL_API_KEY" >> .env 
+  # reload .env to reflect the change
+  load_dotenv
+else
+  echo "ZeroSSL API key found in .env, skipping prompt."
+fi
+
 # --- Prompt for Database Credentials (only on first run) ---
 if [ ! -f db_username.txt ] || [ ! -f db_password.txt ]; then
   read -p "Enter database username: " DB_USERNAME
