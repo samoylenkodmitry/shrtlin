@@ -52,6 +52,7 @@ services:
       - nginx-proxy
     environment:
       NGINX_PROXY_CONTAINER: "nginx-proxy"
+      NGINX_DOCKER_GEN_CONTAINER: "nginx-proxy"
   
   postgres:
     image: postgres:latest
