@@ -37,7 +37,7 @@ fi
 
 # --- Create dhparam directory if it doesn't exist ---
 if [ ! -d "./nginx/dhparam" ]; then
-    sudo mkdir ./nginx/dhparam
+    sudo mkdir -p ./nginx/dhparam
     sudo chmod 777 ./nginx/dhparam  
 fi
 
