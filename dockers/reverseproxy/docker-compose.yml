@@ -1,0 +1,46 @@
+services:
+  
+  nginx-proxy:
+    image: jwilder/nginx-proxy:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: unless-stopped
+    networks:
+      - proxy-tier
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+      - html:/usr/share/nginx/html
+      - vhost:/etc/nginx/vhost.d
+      - dhparam:/etc/nginx/dhparam
+      - certs:/etc/nginx/certs:ro
+      - conf:/etc/nginx/conf.d
+
+    acme-companion:
+      image: nginxproxy/acme-companion
+      restart: unless-stopped
+      depends_on:
+        - nginx-proxy
+      networks:
+        - proxy-tier
+      volumes_from:
+        - nginx-proxy
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock:ro
+        - certs:/etc/nginx/certs:rw
+        - acme:/etc/acme.sh
+      environment:
+        - NGINX_PROXY_CONTAINER=nginx-proxy
+
+networks:
+  default:
+    external:
+      name: proxy-tier
+
+volumes:
+  html:
+  conf:
+  vhost:
+  dhparam:
+  certs:
+  acme:

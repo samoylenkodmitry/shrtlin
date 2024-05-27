@@ -8,7 +8,6 @@ BACKEND_ARTIFACT_NAME="server-1.0.0.jar"
 # Otherwise, the latest commit on 'main' will be used.
 # CHECKOUT_TAG="your_tag_here" 
 
-# --- Functions ---
 download_artifact() {
   if [ -f "$1" ]; then
     read -p "$1 already exists. Overwrite? (N/y): " overwrite
@@ -93,6 +92,16 @@ else
   echo "Domain found in .env, skipping prompt."
 fi
 
+# --- Prompt for Letsencrypt email (only on first run) ---
+if [ -z "$LETSENCRYPT_EMAIL" ]; then
+  read -p "Enter your letsencrypt email (e.g., mail@example.com): " LETSENCRYPT_EMAIL
+  echo "LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL" >> .env 
+  # reload .env to reflect the change
+  source .env
+else
+  echo "Letsencrypt email found in .env, skipping prompt."
+fi
+
 # --- Prompt for Database Credentials (only on first run) ---
 if [ ! -f db_username.txt ] || [ ! -f db_password.txt ]; then
   read -p "Enter database username: " DB_USERNAME
@@ -109,6 +118,30 @@ else
 fi
 
 # --- Start Docker Compose ---
-docker-compose up -d --build 
+start_docker_service() {
+  local service_name=$1
+  local service_dir=$2
+
+  if [ -z "$(docker ps -q -f name=$service_name)" ]; then
+    read -p "$service_name not running. Start $service_name? (Y/n): " start_service
+    [ "$start_service" == "n" ] && echo "Skipping $service_name start." && return 0
+    echo "Starting $service_name..."
+    cd $service_dir
+    docker-compose up -d
+    cd ../..
+  else
+    echo "$service_name already running."
+    # ask to restart service
+    read -p "Restart $service_name? (y/N): " restart_service
+    if [ "$restart_service" == "y" ]; then
+      echo "Restarting $service_name..."
+      docker-compose restart $service_name
+    fi
+  fi
+}
+
+start_docker_service "nginx-proxy" "./dockers/reverseproxy"
+start_docker_service "backend" "./dockers/backend"
+start_docker_service "frontend" "./dockers/frontend"
 
 echo "Deployment complete!"

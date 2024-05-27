@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build: .
+    restart: always
+    networks:
+      - proxy-tier
+    environment:
+      - VIRTUAL_HOST=$DOMAIN
+      - LETSENCRYPT_HOST=$DOMAIN
+      - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
+      - VIRTUAL_PATH=/
