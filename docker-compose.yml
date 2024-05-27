@@ -8,6 +8,8 @@ services:
       - DATABASE_URL=$DATABASE_URL
       - DATABASE_USER_FILE=/run/secrets/db_username
       - DATABASE_PASSWORD_FILE=/run/secrets/db_password
+    volumes:
+      - ./server/ktor.pk8:/run/secrets/ktor_pk8:ro
     depends_on:
       - postgres
     labels:

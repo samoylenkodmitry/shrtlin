@@ -333,7 +333,12 @@ fun Application.module() {
 }
 
 private fun loadJWTKey(): Algorithm {
-    val keyBytes = File(privateKeyPath).readBytes()
+    val keyBytes =
+        File(privateKeyPath).takeIf { it.exists() }?.readBytes() ?: run {
+            // print all files tree
+            File(".").walkTopDown().forEach { println(it) }
+            throw Exception("Private key file not found")
+        }
     val kf = KeyFactory.getInstance("RSA")
     val privateKey = kf.generatePrivate(PKCS8EncodedKeySpec(keyBytes)) as RSAPrivateCrtKey
     val rsaPublicKey =
