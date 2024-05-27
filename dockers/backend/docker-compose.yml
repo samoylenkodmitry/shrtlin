@@ -17,7 +17,9 @@ services:
       - app-tier
 
   backend:
-    build: .
+    build:
+      context: ../..
+      dockerfile: dockers/backend/Dockerfile
     container_name: backend
     restart: always
     depends_on:
@@ -32,25 +34,25 @@ services:
       # path to https://shrtl.in/(+*) *with* the suffix path (e.g., https://shrtl.in/abc) to be proxied to the backend
       - VIRTUAL_PATH=^/([a-zA-Z0-9]+)$
     volumes:
-      - ./../server/ktor.pk8:/run/secrets/ktor_pk8:ro
-      - ./../server/jwks.json:/run/secrets/certs/jwks.json:ro
+      - ../../server/ktor.pk8:/run/secrets/ktor_pk8:ro
+      - ../../server/jwks.json:/run/secrets/certs/jwks.json:ro
     secrets:
       - db_username
       - db_password
     networks:
       - app-tier
       - proxy-tier
-          
+
 networks:
   app-tier:
   proxy-tier:
     external: true
 
 volumes:
-    postgres_data:
-      
+  postgres_data:
+
 secrets:
   db_username:
-    file: ./../db_username.txt
+    file: ../../db_username.txt
   db_password:
-    file: ./../db_password.txt
+    file: ../../db_password.txt

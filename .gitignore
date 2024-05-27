@@ -37,3 +37,11 @@ db_password.txt
 
 !/kotlin-js-store/yarn.lock
 !/all.md
+certs/
+nginx/
+frontend-web.zip
+server-1.0.0.jar
+ktor.key
+ktor.pub
+wget-log
+all.md
