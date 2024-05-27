@@ -33,9 +33,8 @@ services:
       - NGINX_PROXY_CONTAINER=nginx-proxy
 
 networks:
-  default:
-    external:
-      name: proxy-tier
+  proxy-tier:
+    external: true
 
 volumes:
   html:
