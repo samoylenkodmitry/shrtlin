@@ -15,29 +15,29 @@ services:
     networks:
       - app-tier
 
-    backend:
-      build: .
-      restart: always
-      depends_on:
-        - postgres
-      environment:
-        - DOMAIN=$DOMAIN
-        - DATABASE_URL=$DATABASE_URL
-        - DATABASE_USER_FILE=/run/secrets/db_username
-        - DATABASE_PASSWORD_FILE=/run/secrets/db_password
-        - LETSENCRYPT_HOST=$DOMAIN
-        - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
-        # path to https://shrtl.in/(+*) *with* the suffix path (e.g., https://shrtl.in/abc) to be proxied to the backend
-        - VIRTUAL_PATH=^/([a-zA-Z0-9]+)$
-      volumes:
-        - ./../server/ktor.pk8:/run/secrets/ktor_pk8:ro
-        - ./../server/jwks.json:/run/secrets/certs/jwks.json:ro
-      secrets:
-        - db_username
-        - db_password
-      networks:
-        - app-tier
-        - proxy-tier
+  backend:
+    build: .
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - DOMAIN=$DOMAIN
+      - DATABASE_URL=$DATABASE_URL
+      - DATABASE_USER_FILE=/run/secrets/db_username
+      - DATABASE_PASSWORD_FILE=/run/secrets/db_password
+      - LETSENCRYPT_HOST=$DOMAIN
+      - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
+      # path to https://shrtl.in/(+*) *with* the suffix path (e.g., https://shrtl.in/abc) to be proxied to the backend
+      - VIRTUAL_PATH=^/([a-zA-Z0-9]+)$
+    volumes:
+      - ./../server/ktor.pk8:/run/secrets/ktor_pk8:ro
+      - ./../server/jwks.json:/run/secrets/certs/jwks.json:ro
+    secrets:
+      - db_username
+      - db_password
+    networks:
+      - app-tier
+      - proxy-tier
           
 networks:
   app-tier:
