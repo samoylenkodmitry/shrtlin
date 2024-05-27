@@ -60,7 +60,18 @@ fun main() {
         .start(wait = true)
 }
 
-const val CHALLENGE_EXPIRATION_TIME_MS = 60_000 // 1 minute in milliseconds
+private const val CHALLENGE_EXPIRATION_TIME_MS = 60_000 // 1 minute in milliseconds
+private const val HOST_LOCAL = "0.0.0.0"
+private const val DEFAULT_DB_PASSWORD = "password"
+private const val CLAIM_USER_ID = "uid"
+private val hostRelease =
+    System.getenv("DOMAIN").takeIf { !it.isNullOrBlank() }.also {
+        println("DOMAIN from env: $it")
+    } ?: "shrtl.in"
+private val hostName = if (IS_LOCALHOST) HOST_LOCAL else hostRelease
+private val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
+private val privateKeyPath = if (IS_LOCALHOST) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
+private val certsPath = if (IS_LOCALHOST) "./server/certs" else "/run/secrets/certs"
 
 object Urls : LongIdTable() {
     val originalUrl = varchar("original_url", 2048)
@@ -76,48 +87,44 @@ object Users : LongIdTable() {
     val challenge = varchar("challenge", 2048).uniqueIndex()
 }
 
-const val HOST_LOCAL = "0.0.0.0"
-val hostRelease =
-    System.getenv("DOMAIN").also {
-        println("DOMAIN from env: $it")
-    } ?: "shrtl.in"
-val hostName = if (IS_LOCALHOST) HOST_LOCAL else hostRelease
-val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
-
 fun initDB() {
     Database.connect(
-        url =
-            if (IS_LOCALHOST) {
-                "jdbc:postgresql://localhost:5432/shrtlin"
-            } else {
-                System.getenv("DATABASE_URL").also { println("DATABASE_URL from env: $it") }
-                    ?: "jdbc:postgresql://postgres:5432/shrtlin"
-            },
+        url = getDatabaseUrl().also { println("DATABASE_URL: $it") },
         driver = "org.postgresql.Driver",
-        user =
-            if (IS_LOCALHOST) {
-                "user"
-            } else {
-                System.getenv("DATABASE_USER_FILE")?.let { File(it).readText().trim() }
-                    .also { println("DATABASE_USER from file: $it") } ?: "user"
-            },
-        password =
-            if (IS_LOCALHOST) {
-                "password"
-            } else {
-                System.getenv("DATABASE_PASSWORD_FILE")?.let { File(it).readText().trim() }
-                    .also { println("DATABASE_PASSWORD from file isNullOrEmpty?: ${it.isNullOrEmpty()}") } ?: "password"
-            },
+        user = getDatabaseUser().also { println("DATABASE_USER: $it") },
+        password = getDatabasePassword().also { println("DATABASE_PASSWORD is '$DEFAULT_DB_PASSWORD'?: ${it == DEFAULT_DB_PASSWORD}") },
     )
     transaction {
         SchemaUtils.create(Urls, Users)
     }
 }
 
-private const val CLAIM_USER_ID = "uid"
-val privateKeyPath = if (IS_LOCALHOST) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
+private fun getDatabasePassword() =
+    if (IS_LOCALHOST) {
+        DEFAULT_DB_PASSWORD
+    } else {
+        System.getenv("DATABASE_PASSWORD_FILE").takeIf { !it.isNullOrBlank() }?.let { File(it).readText().trim() }
+            .takeIf { !it.isNullOrBlank() }
+            .also { println("DATABASE_PASSWORD from file isNullOrEmpty?: ${it.isNullOrEmpty()}") }
+            ?: DEFAULT_DB_PASSWORD
+    }
 
-private val certsPath = if (IS_LOCALHOST) "./server/certs" else "/run/secrets/certs"
+private fun getDatabaseUser() =
+    if (IS_LOCALHOST) {
+        "user"
+    } else {
+        System.getenv("DATABASE_USER_FILE").takeIf { !it.isNullOrBlank() }?.let { File(it).readText().trim() }
+            .takeIf { !it.isNullOrBlank() }
+            .also { println("DATABASE_USER from file: $it") } ?: "user"
+    }
+
+private fun getDatabaseUrl() =
+    if (IS_LOCALHOST) {
+        "jdbc:postgresql://localhost:5432/shrtlin"
+    } else {
+        System.getenv("DATABASE_URL").takeIf { !it.isNullOrBlank() }.also { println("DATABASE_URL from env: $it") }
+            ?: "jdbc:postgresql://postgres:5432/shrtlin"
+    }
 
 // https://github.com/ktorio/ktor-documentation/blob/2.3.10/codeSnippets/snippets/auth-jwt-rs256/src/main/kotlin/com/example/Application.kt
 fun Application.module() {

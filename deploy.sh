@@ -80,14 +80,25 @@ if [ ! -f "./.env" ]; then
 fi
 
 # --- Load .env file ---
-source .env
+load_dotenv() {
+  if [ -f .env ]; then
+    set -a
+    source .env
+    set +a
+  else
+    echo ".env file not found. Exiting..."
+    exit 1
+  fi
+}
+
+load_dotenv
 
 # --- Prompt for Domain (only on first run) ---
 if [ -z "$DOMAIN" ]; then
   read -p "Enter your domain (e.g., example.com): " DOMAIN
   echo "DOMAIN=$DOMAIN" >> .env 
   # reload .env to reflect the change
-  source .env
+  load_dotenv
 else
   echo "Domain found in .env, skipping prompt."
 fi
@@ -97,7 +108,7 @@ if [ -z "$LETSENCRYPT_EMAIL" ]; then
   read -p "Enter your letsencrypt email (e.g., mail@example.com): " LETSENCRYPT_EMAIL
   echo "LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL" >> .env 
   # reload .env to reflect the change
-  source .env
+  load_dotenv
 else
   echo "Letsencrypt email found in .env, skipping prompt."
 fi
