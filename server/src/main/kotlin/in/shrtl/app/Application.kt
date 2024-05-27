@@ -56,7 +56,7 @@ import kotlin.math.ceil
 
 fun main() {
     initDB()
-    embeddedServer(Netty, port = SERVER_PORT, host = hostName, module = Application::module)
+    embeddedServer(Netty, port = SERVER_PORT, host = HOST_LOCAL, module = Application::module)
         .start(wait = true)
 }
 
@@ -76,12 +76,12 @@ object Users : LongIdTable() {
     val challenge = varchar("challenge", 2048).uniqueIndex()
 }
 
-const val HOST_DEBUG = "0.0.0.0"
+const val HOST_LOCAL = "0.0.0.0"
 val hostRelease =
     System.getenv("DOMAIN").also {
         println("DOMAIN from env: $it")
     } ?: "shrtl.in"
-val hostName = if (IS_LOCALHOST) HOST_DEBUG else hostRelease
+val hostName = if (IS_LOCALHOST) HOST_LOCAL else hostRelease
 val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
 
 fun initDB() {
