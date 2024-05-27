@@ -1,6 +1,7 @@
 services:
   frontend:
     build: .
+    container_name: frontend
     restart: always
     networks:
       - proxy-tier
