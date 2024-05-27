@@ -10,3 +10,7 @@ services:
       - LETSENCRYPT_HOST=$DOMAIN
       - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
       - VIRTUAL_PATH=/
+
+networks:
+  proxy-tier:
+    external: true
