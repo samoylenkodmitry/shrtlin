@@ -36,9 +36,17 @@ else
 fi
 
 # --- Create dhparam directory if it doesn't exist ---
-if [ ! -d "/tmp/dhparam" ]; then
-    sudo mkdir /tmp/dhparam
-    sudo chmod 777 /tmp/dhparam  
+if [ ! -d "./nginx/dhparam" ]; then
+    sudo mkdir ./nginx/dhparam
+    sudo chmod 777 ./nginx/dhparam  
+fi
+
+# --- Generate DH Parameters (if not present) ---
+if [ ! -f "./nginx/dhparam/dhparam-2048.pem" ]; then
+  echo "Generating Diffie-Hellman parameters..."
+  openssl dhparam -out ./nginx/dhparam/dhparam-2048.pem 2048
+else
+  echo "Diffie-Hellman parameters found, skipping generation."
 fi
 
 # --- Download and Prepare Artifacts ---

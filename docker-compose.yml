@@ -34,7 +34,7 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
-      - dhparam:/etc/nginx/dhparam
+      - ./nginx/dhparam:/etc/nginx/dhparam
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
   letsencrypt-companion:
@@ -43,7 +43,7 @@ services:
     volumes:
       - certbot-etc:/etc/letsencrypt
       - certbot-var:/var/www/certbot
-      - dhparam:/etc/nginx/dhparam
+      - ./nginx/dhparam:/etc/nginx/dhparam
       - /var/run/docker.sock:/var/run/docker.sock:ro
     depends_on:
       - nginx-proxy
@@ -66,12 +66,6 @@ services:
 volumes:
   certbot-etc:
   certbot-var:
-  dhparam:
-    driver: local
-    driver_opts:
-      type: none
-      device: /tmp/dhparam
-      o: bind
   postgres_data:
 
 secrets:

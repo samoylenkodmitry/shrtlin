@@ -48,6 +48,7 @@ sudo systemctl start docker
 systemctl status docker #check docker status
 sudo usermod -aG docker $USER #add user to docker group
 docker swarm init #init docker swarm for storing secrets
+sudo ufw status #check firewall status, ports 80, 443 must be open
 
 ```
 

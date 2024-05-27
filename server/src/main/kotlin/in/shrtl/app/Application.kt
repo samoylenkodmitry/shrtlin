@@ -91,7 +91,7 @@ fun initDB() {
                 "jdbc:postgresql://localhost:5432/shrtlin"
             } else {
                 System.getenv("DATABASE_URL").also { println("DATABASE_URL from env: $it") }
-                    ?: "jdbc:postgresql://postgress:5432/shrtlin"
+                    ?: "jdbc:postgresql://postgres:5432/shrtlin"
             },
         driver = "org.postgresql.Driver",
         user =
