@@ -1,6 +1,6 @@
 import kotlin.reflect.KClass
 
-const val SERVER_PORT = 8080
+const val SERVER_PORT = 80
 
 // POW Challenge difficulty prefix bytes in hex format
 const val DIFFICULTY_PREFIX = "00000"
