@@ -168,7 +168,7 @@ fun Application.module() {
         }
         File(certsPath).walkTopDown().forEach { println(it) }
         File(certsPath, "jwks.json").readText().also { println(it) }
-        staticFiles(".well-known", File(certsPath), "jwks.json")
+        staticFiles(".well-known/jwks.json", File(certsPath))
         get(Endpoints.powGet.path) {
             call.respond(issueChallenge(jwtAlgorithm))
         }
