@@ -17,6 +17,12 @@ download_artifact() {
   wget -O "$1" "$artifact_url" || { echo "Download failed for $1"; exit 1; }
 }
 
+# Ask user to confirm before resetting local changes
+# Show local changes and prompt for reset
+git status --short
+read -p "Reset local changes? (Y/n): " reset_local
+[ "$reset_local" == "n" ] && echo "Skipping reset." && exit 0
+
 # --- Git Reset and Checkout ---
 echo "Resetting local changes (hard reset)..."
 git reset --hard origin/main 
