@@ -26,6 +26,7 @@ services:
       - postgres
     environment:
       - DOMAIN=$DOMAIN
+      - VIRTUAL_HOST=$DOMAIN
       - DATABASE_URL=$DATABASE_URL
       - DATABASE_USER_FILE=/run/secrets/db_username
       - DATABASE_PASSWORD_FILE=/run/secrets/db_password
