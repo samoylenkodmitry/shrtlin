@@ -36,7 +36,7 @@ services:
       - VIRTUAL_PATH=~^/(.+)$
     volumes:
       - ../../server/ktor.pk8:/run/secrets/ktor_pk8:ro
-      - ../../server/jwks.json:/run/secrets/certs/jwks.json:ro
+      - ../../server/certs/jwks.json:/run/secrets/certs/jwks.json:ro
     secrets:
       - db_username
       - db_password
