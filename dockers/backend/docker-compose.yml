@@ -33,7 +33,7 @@ services:
       - LETSENCRYPT_HOST=$DOMAIN
       - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
       # path to https://shrtl.in/(.+) *with* the suffix path (e.g., https://shrtl.in/abc) to be proxied to the backend
-      - VIRTUAL_PATH=~^/(.+)$
+      - VIRTUAL_PATH=~^/(?!(8433c6b69bfa201b0895\.wasm|composeApp\.js|composeApp\.js\.LICENSE\.txt|composeApp\.js\.map|composeApp\.wasm|composeResources|shrtlin\.composeapp\.generated\.resources|drawable|compose-multiplatform\.xml|index\.html|META-INF|MANIFEST\.MF|skiko\.js|skiko\.mjs|skiko\.wasm)).+$
     volumes:
       - ../../server/ktor.pk8:/run/secrets/ktor_pk8:ro
       - ../../server/certs/jwks.json:/run/secrets/certs/jwks.json:ro
