@@ -25,4 +25,11 @@ object Storage {
             cache.getOrPut(KEY_SESSION) { settingsStorage.getString(KEY_SESSION, "") } to
                 cache.getOrPut(KEY_REFRESH) { settingsStorage.getString(KEY_REFRESH, "") }
         }
+
+    suspend fun clearData() {
+        withContext(Dispatchers.Default) {
+            settingsStorage.remove(KEY_SESSION)
+            settingsStorage.remove(KEY_REFRESH)
+        }
+    }
 }

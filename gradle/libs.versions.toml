@@ -26,9 +26,11 @@ exposed = "0.36.2"
 slf4j = "1.7.32"
 kotlinx-date-time = "0.5.0"
 okio = "3.9.0" # for sha256, todo consider lighter options
-multiplatform-settings = "1.1.1"
+multiplatform-settings = "1.1.1" # APACHE-2.0 https://github.com/russhwolf/multiplatform-settings
+composeIcons = "1.1.0" # MIT https://github.com/DevSrSouza/compose-icons
 
 [libraries]
+composeIcons-feather = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 multiplatform-settings-no-arg = { module = "com.russhwolf:multiplatform-settings-no-arg", version.ref = "multiplatform-settings" }

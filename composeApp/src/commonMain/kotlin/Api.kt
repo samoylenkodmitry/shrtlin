@@ -39,19 +39,19 @@ object Api {
                                 refreshToken = refreshToken,
                             )
                         } else {
-                            requestTokens()
+                            requestAndSaveNewTokens()
                         }
                     }
                     refreshTokens {
                         oldTokens?.run {
                             BearerTokens(refreshSessionToken(refreshToken).sessionToken, refreshToken)
-                        } ?: requestTokens()
+                        } ?: requestAndSaveNewTokens()
                     }
                 }
             }
         }
 
-    private suspend fun requestTokens(): BearerTokens =
+    private suspend fun requestAndSaveNewTokens(): BearerTokens =
         with(authenticate()) {
             CoroutineScope(Dispatchers.Default).launch {
                 Storage.saveTokensToStorage(sessionToken, refreshToken)
@@ -101,19 +101,23 @@ object Api {
      */
     suspend fun shorten(s: String): UrlInfo = requestsClient doPost Endpoints.shorten(ShortenRequest(s))
 
+    suspend fun getUrls(
+        page: Int,
+        pageSize: Int,
+    ): UrlsResponse = requestsClient doPost Endpoints.getUrls(GetUrlsRequest(page, pageSize))
 
-    suspend fun getUrls(page: Int, pageSize: Int): UrlsResponse =
-        requestsClient doPost Endpoints.getUrls(GetUrlsRequest(page, pageSize))
+    suspend fun removeUrl(urlId: Long): Boolean = requestsClient doPost Endpoints.removeUrl(RemoveUrlRequest(urlId))
 
-    suspend fun removeUrl(urlId: Long): Boolean =
-        requestsClient doPost Endpoints.removeUrl(RemoveUrlRequest(urlId))
-
-    private suspend inline infix fun <reified T : Any> HttpClient.doGet(endpoint: Endpoint<T>): T =
-        get(endpoint.path).body()
+    private suspend inline infix fun <reified T : Any> HttpClient.doGet(endpoint: Endpoint<T>): T = get(endpoint.path).body()
 
     private suspend inline infix fun <reified A : Any, reified T : Any> HttpClient.doPost(endpoint: EndpointWithArg<A, T>): T =
         post(endpoint.path) {
             contentType(ContentType.Application.Json)
             setBody(endpoint.arg)
         }.body()
+
+    suspend fun logout() {
+        Storage.clearData()
+        requestAndSaveNewTokens()
+    }
 }
