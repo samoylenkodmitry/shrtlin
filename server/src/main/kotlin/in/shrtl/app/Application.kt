@@ -145,9 +145,7 @@ fun Application.module() {
     install(Authentication) {
         jwt("auth-jwt") {
             realm = myRealm
-            verifier(jwkProvider) {
-                acceptLeeway(3)
-            }
+            verifier(jwtVerifier)
             validate { credential ->
                 if (credential.payload.audience.contains(audience)) {
                     JWTPrincipal(credential.payload)
