@@ -174,6 +174,16 @@ fun Application.module() {
                 files("jwks.json")
             }
         }
+        get("/debug/jwks") {
+            val jwksFile = File(certsPath, "jwks.json")
+            if (jwksFile.exists()) {
+                println("Serving JWKS")
+                call.respondText(jwksFile.readText())
+            } else {
+                println("JWKS not found")
+                call.respondText("File not found", status = HttpStatusCode.NotFound)
+            }
+        }
         get(Endpoints.powGet.path) {
             call.respond(issueChallenge(jwtAlgorithm))
         }
