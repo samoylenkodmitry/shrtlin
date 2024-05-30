@@ -34,6 +34,7 @@ object Api {
                     loadTokens {
                         val (accessToken, refreshToken) = Storage.loadTokensFromStorage()
                         if (accessToken.isNotBlank() && refreshToken.isNotBlank()) {
+                            AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
                             BearerTokens(
                                 accessToken = accessToken,
                                 refreshToken = refreshToken,
@@ -82,7 +83,13 @@ object Api {
      *
      * @return [AuthResult] with new session token
      */
-    private suspend fun authenticate() = postPow(solveChallenge(getPow()))
+    private suspend fun authenticate() =
+        run {
+            AppGraph.auth.tryEmit(AuthState.Authenticating)
+            postPow(solveChallenge(getPow())).also {
+                AppGraph.auth.tryEmit(AuthState.Authenticated(it.refreshToken))
+            }
+        }
 
     /**
      * Refresh token
@@ -119,5 +126,14 @@ object Api {
     suspend fun logout() {
         Storage.clearData()
         requestAndSaveNewTokens()
+    }
+
+    suspend fun checkAuth() {
+        val (accessToken, refreshToken) = Storage.loadTokensFromStorage()
+        if (accessToken.isNotBlank() && refreshToken.isNotBlank()) {
+            AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
+        } else {
+            requestAndSaveNewTokens()
+        }
     }
 }
