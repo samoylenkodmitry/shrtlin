@@ -25,10 +25,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
-import compose.icons.FeatherIcons
-import compose.icons.feathericons.Clipboard
-import compose.icons.feathericons.Delete
-import compose.icons.feathericons.UserMinus
 import kotlinx.coroutines.*
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -280,7 +276,7 @@ private fun ColumnScope.ResultNewUrlCard(
 private fun ButtonDelete(onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(
-            FeatherIcons.Delete,
+            Theme.Icons.Delete,
             contentDescription = "Delete",
             modifier = Modifier.size(16.dp),
         )
@@ -293,7 +289,7 @@ private fun ButtonCopyToClipboard(textToCopy: String) {
     IconButton(onClick = {
         clipboardManager.setText(buildAnnotatedString { append(textToCopy) })
     }) {
-        Icon(FeatherIcons.Clipboard, contentDescription = "Copy")
+        Icon(Theme.Icons.Clipboard, contentDescription = "Copy")
     }
 }
 
@@ -326,7 +322,7 @@ private fun ButtonLogout(
         }
     }, modifier = modifier) {
         Icon(
-            FeatherIcons.UserMinus,
+            Theme.Icons.UserMinus,
             contentDescription = "Logout",
             modifier =
                 Modifier.graphicsLayer {

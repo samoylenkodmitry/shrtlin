@@ -65,7 +65,7 @@ kotlin {
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
             implementation(projects.shared)
-            implementation(libs.composeIcons.feather)
+            // todo implementation(libs.composeIcons.feather)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.json)
