@@ -11,6 +11,7 @@ import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
@@ -134,6 +135,16 @@ object Api {
             AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
         } else {
             requestAndSaveNewTokens()
+        }
+    }
+
+    suspend fun doLogin(refreshToken: String): Boolean {
+        refreshSessionToken(refreshToken).let {
+            AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
+            CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
+                Storage.saveTokensToStorage(it.sessionToken, refreshToken)
+            }
+            return true
         }
     }
 }

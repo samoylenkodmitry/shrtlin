@@ -38,6 +38,8 @@ sealed interface Screen {
 
     data object UserProfile : Screen
 
+    data object Login : Screen
+
     data class Error(val message: String) : Screen
 }
 
@@ -62,6 +64,10 @@ object Navigator {
 
     fun splash() {
         screenFlow.tryEmit(Screen.Splash)
+    }
+
+    fun login() {
+        screenFlow.tryEmit(Screen.Login)
     }
 }
 
@@ -149,6 +155,16 @@ object Repository {
             }
         }
     }
+
+    suspend fun doLogin(userId: String): Boolean =
+        withContext(Dispatchers.Default + SupervisorJob()) {
+            try {
+                Api.doLogin(userId)
+            } catch (e: Exception) {
+                e.message ?: "Error $e"
+                false
+            }
+        }
 }
 
 @Composable
@@ -190,6 +206,7 @@ fun App() {
                 Screen.Splash -> SplashScreen()
                 Screen.Main -> MainScreen()
                 Screen.UserProfile -> UserProfileScreen()
+                Screen.Login -> LoginScreen()
                 is Screen.Error -> ErrorScreen(screen.message)
             }
             Box(modifier = Modifier.width(300.dp).height(100.dp).align(Alignment.BottomEnd)) {
@@ -247,24 +264,27 @@ fun UserProfileScreen() {
 
     Column {
         Text("User Profile")
-        SelectionContainer {
-            when (val state = authState.value) {
-                is AuthState.Authenticated -> {
-                    Text("User ID: ${state.id}")
-                }
-
-                AuthState.AuthError -> {
-                    Text("Error")
-                }
-
-                AuthState.Authenticating -> {
-                    Text("Authenticating")
-                }
-
-                AuthState.Unauthenticated -> {
-                    Text("Unauthenticated")
-                }
+        when (val state = authState.value) {
+            is AuthState.Authenticated -> {
+                Text("User ID: ${state.id.take(8)}...${state.id.takeLast(8)}")
             }
+
+            AuthState.AuthError -> {
+                Text("Error")
+            }
+
+            AuthState.Authenticating -> {
+                Text("Authenticating")
+            }
+
+            AuthState.Unauthenticated -> {
+                Text("Unauthenticated")
+            }
+        }
+        Button(onClick = {
+            Navigator.login()
+        }) {
+            Text("Login by ID")
         }
         // Button to copy id to clipboard
         val state = authState.value
@@ -289,6 +309,39 @@ fun UserProfileScreen() {
             }
         }) {
             Text("Logout")
+        }
+    }
+}
+
+@Composable
+fun LoginScreen() {
+    Column {
+        // Back button
+        Button(onClick = {
+            Navigator.main()
+        }) {
+            Text("Go main")
+        }
+        // Text field for user ID
+        var userId by remember { mutableStateOf("") }
+        TextField(
+            value = userId,
+            onValueChange = { userId = it },
+            label = { Text("User ID") },
+        )
+        // Button to login
+        val scope = rememberCoroutineScope()
+        Button(onClick = {
+            scope.launch {
+                if (!Repository.doLogin(userId)) {
+                    AppGraph.notifications.tryEmit(Notification.Error("Could not login"))
+                } else {
+                    AppGraph.notifications.tryEmit(Notification.Info("Logged in"))
+                    Navigator.userProfile()
+                }
+            }
+        }) {
+            Text("Login")
         }
     }
 }
