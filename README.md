@@ -2,6 +2,8 @@
 ![GitHub Tag](https://img.shields.io/github/v/tag/samoylenkodmitry/shrtlin)
 ![GitHub Release](https://img.shields.io/github/v/release/samoylenkodmitry/shrtlin?include_prereleases)
 ![GitHub License](https://img.shields.io/github/license/samoylenkodmitry/shrtlin)
+![GitHub top language](https://img.shields.io/github/languages/top/samoylenkodmitry/shrtlin)
+![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)
 
 # shrtlin
 `shrtlin` is a feature-rich, open-source `URL shortening` service.
