@@ -1,6 +1,5 @@
 [![Build and Create Release](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml/badge.svg)](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml)
 ![GitHub Tag](https://img.shields.io/github/v/tag/samoylenkodmitry/shrtlin)
-https://img.shields.io/github/license/samoylenkodmitry/shrtlin
 ![GitHub Release](https://img.shields.io/github/v/release/samoylenkodmitry/shrtlin?include_prereleases)
 
 # shrtlin
