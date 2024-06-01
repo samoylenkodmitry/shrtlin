@@ -43,18 +43,13 @@ download_artifact() {
   log "Downloaded $artifact_name successfully."
 }
 
-# Function to handle the overwrite prompt and trigger download
-handle_download() {
+prompt_for_overwrite() {
   local artifact_name="$1"
   if [ -f "$artifact_name" ]; then
     read -p "$artifact_name already exists. Overwrite? (N/y): " overwrite
-    if [ "$overwrite" == "y" ]; then
-      download_artifact "$artifact_name" & # Download in background if overwriting
-    else
-      log "Skipping download for $artifact_name"
-    fi
+    echo "$overwrite" # Return the decision (y/n)
   else
-    download_artifact "$artifact_name" & # Download in background if file doesn't exist
+    echo "y" # File doesn't exist, default to download
   fi
 }
 
@@ -252,9 +247,15 @@ fi
 log "Backing up existing deployment."
 backup_existing_deployment
 
-log "Downloading and preparing artifacts."
-handle_download "$FRONTEND_ARTIFACT_NAME" 
-handle_download "$BACKEND_ARTIFACT_NAME" 
+log "Checking for existing artifacts:"
+
+# Get overwrite decisions upfront (using our simplified function)
+frontend_overwrite=$(prompt_for_overwrite "$FRONTEND_ARTIFACT_NAME")
+backend_overwrite=$(prompt_for_overwrite "$BACKEND_ARTIFACT_NAME")
+# Start downloads based on decisions, ALL in the background
+[ "$frontend_overwrite" == "y" ] && download_artifact "$FRONTEND_ARTIFACT_NAME" &
+[ "$backend_overwrite" == "y" ] && download_artifact "$BACKEND_ARTIFACT_NAME" &
+
 wait
 
 unzip -o "$FRONTEND_ARTIFACT_NAME" || error_exit "Failed to unzip $FRONTEND_ARTIFACT_NAME"
