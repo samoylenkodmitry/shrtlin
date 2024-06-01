@@ -1,4 +1,10 @@
 [![Build and Create Release](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml/badge.svg)](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml)
+[![GitHub Release](https://img.shields.io/github/v/release/samoylenkodmitry/shrtlin?include_prereleases)](https://github.com/samoylenkodmitry/shrtlin/releases/latest
+)
+[![GitHub License](https://img.shields.io/github/license/samoylenkodmitry/shrtlin)](https://github.com/samoylenkodmitry/shrtlin/blob/main/LICENSE)
+[![GitHub top language](https://img.shields.io/github/languages/top/samoylenkodmitry/shrtlin)](https://github.com/search?q=repo%3Asamoylenkodmitry%2Fshrtlin++language%3AKotlin&type=code)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)](https://shrtl.in)
+
 
 # shrtlin
 `shrtlin` is a feature-rich, open-source `URL shortening` service.
