@@ -301,7 +301,14 @@ fun BoxScope.UserProfileScreen() {
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Placeholder for a circle (e.g., user avatar)
-        Box(modifier = Modifier.size(100.dp).background(Color.Gray, shape = CircleShape))
+        Box(modifier = Modifier.size(100.dp).background(Color.Gray, shape = CircleShape)) {
+            // User icon
+            Icon(
+                Theme.Icons.User,
+                contentDescription = "User",
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -389,11 +396,26 @@ fun BoxScope.LoginScreen() {
     Column(modifier = Modifier.align(Alignment.Center)) {
         // Text field for user ID
         var userId by remember { mutableStateOf("") }
-        TextField(
-            value = userId,
-            onValueChange = { userId = it },
-            label = { Text("User ID") },
-        )
+        Box {
+            TextField(
+                value = userId,
+                onValueChange = { userId = it },
+                label = { Text("User ID") },
+            )
+            val clipboardManager = LocalClipboardManager.current
+            val scope = rememberCoroutineScope()
+            // Paste button
+            IconButton(
+                onClick = {
+                    scope.launch {
+                        clipboardManager.getText()?.let { userId = it.text }
+                    }
+                },
+                modifier = Modifier.align(Alignment.CenterEnd),
+            ) {
+                Icon(Theme.Icons.Clipboard, contentDescription = "Paste")
+            }
+        }
         // Button to login
         val scope = rememberCoroutineScope()
         Button(onClick = {
