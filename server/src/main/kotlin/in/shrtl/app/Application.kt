@@ -14,9 +14,9 @@ import GetUrlsRequest
 import Greeting
 import IS_LOCALHOST
 import ProofOfWork
-import RefreshResult
 import RemoveUrlRequest
 import SERVER_PORT
+import UpdateNickRequest
 import UrlInfo
 import UrlsResponse
 import User
@@ -63,7 +63,7 @@ fun main() {
 private const val CHALLENGE_EXPIRATION_TIME_MS = 60_000 // 1 minute in milliseconds
 private const val HOST_LOCAL = "0.0.0.0"
 private const val DEFAULT_DB_PASSWORD = "password"
-private const val CLAIM_USER_ID = "uid"
+const val CLAIM_USER_ID = "uid"
 private val hostRelease =
     System.getenv("DOMAIN").takeIf { !it.isNullOrBlank() }.also {
         println("DOMAIN from env: $it")
@@ -230,13 +230,13 @@ fun Application.module() {
                 val userId = jwt.getClaim(CLAIM_USER_ID).asLong()
                 val user = getUser(userId)
                 if (user != null) {
-                    RefreshResult(
+                    val sessionToken =
                         JWT.create()
                             .withAudience(audience)
                             .withIssuer(issuer)
                             .withClaim(CLAIM_USER_ID, user.id)
-                            .sign(jwtAlgorithm),
-                    )
+                            .sign(jwtAlgorithm)
+                    AuthResult(refreshToken.refreshToken, sessionToken, user)
                 } else {
                     null
                 }
@@ -338,6 +338,16 @@ fun Application.module() {
                                 (Urls.id eq request.id) and (Urls.userId eq userId)
                             }
                         deletedCount > 0 // Return true if deletion was successful
+                    }
+                }?.let { success -> call.respond(HttpStatusCode.OK, success) }
+                    ?: call.respond(HttpStatusCode.BadRequest, "Invalid request")
+            }
+            postWithAuth(Endpoints.updateNick()) { (endpoint, userId) ->
+                receiveArgs(endpoint) { request: UpdateNickRequest ->
+                    transaction {
+                        Users.update({ Users.id eq userId }) {
+                            it[nick] = request.nick
+                        } > 0
                     }
                 }?.let { success -> call.respond(HttpStatusCode.OK, success) }
                     ?: call.respond(HttpStatusCode.BadRequest, "Invalid request")
@@ -514,3 +524,16 @@ inline fun <reified A : Any, reified R : Any> Route.post(
     endpoint: EndpointWithArg<A, R>,
     crossinline body: suspend RoutingContext.(EndpointWithArg<A, R>) -> Unit,
 ): Route = post(endpoint.path) { body(endpoint) }
+
+inline fun <reified A : Any, reified R : Any> Route.postWithAuth(
+    endpoint: EndpointWithArg<A, R>,
+    crossinline body: suspend RoutingContext.(Pair<EndpointWithArg<A, R>, Long>) -> Unit,
+): Route =
+    post(endpoint.path) {
+        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+        if (userId == null) {
+            call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
+            return@post
+        }
+        body(endpoint to userId)
+    }

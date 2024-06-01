@@ -15,6 +15,8 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,7 +91,7 @@ sealed interface AuthState {
 
     data object Authenticating : AuthState
 
-    data class Authenticated(val id: String) : AuthState
+    data class Authenticated(val auth: AuthResult) : AuthState
 
     data object AuthError : AuthState
 }
@@ -173,6 +175,16 @@ object Repository {
         withContext(Dispatchers.Default + SupervisorJob()) {
             try {
                 Api.doLogin(userId)
+            } catch (e: Exception) {
+                e.message ?: "Error $e"
+                false
+            }
+        }
+
+    suspend fun updateNick(newNick: String): Boolean =
+        withContext(Dispatchers.Default + SupervisorJob()) {
+            try {
+                Api.updateNick(newNick)
             } catch (e: Exception) {
                 e.message ?: "Error $e"
                 false
@@ -315,15 +327,55 @@ fun BoxScope.UserProfileScreen() {
         // User ID
         when (val state = authState.value) {
             is AuthState.Authenticated -> {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("ID: ${state.id.take(8)}...${state.id.takeLast(8)}")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    val clipboardManager = LocalClipboardManager.current
-                    IconButton(onClick = {
-                        clipboardManager.setText(AnnotatedString(state.id))
-                        AppGraph.notifications.tryEmit(Notification.Info("ID copied to clipboard"))
-                    }) {
-                        Icon(Theme.Icons.Clipboard, contentDescription = "Copy ID to clipboard")
+                Column {
+                    val userId = state.auth.user.id
+                    Text("User #: $userId")
+                    val nick = state.auth.user.nick
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val editMode = remember { mutableStateOf(false) }
+                        Text("Nick:")
+                        Box {
+                            if (editMode.value) {
+                                var newNick by remember { mutableStateOf(nick) }
+                                TextField(
+                                    value = newNick,
+                                    onValueChange = { newNick = it },
+                                    label = { Text("New nick") },
+                                )
+                                IconButton(
+                                    onClick = {
+                                        scope.launch {
+                                            if (Repository.updateNick(newNick)) {
+                                                AppGraph.notifications.tryEmit(Notification.Info("Nick updated"))
+                                                editMode.value = false
+                                            } else {
+                                                AppGraph.notifications.tryEmit(Notification.Error("Could not update nick"))
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.align(Alignment.CenterEnd),
+                                ) {
+                                    Icon(Icons.Filled.Done, contentDescription = "Edit nick")
+                                }
+                            } else {
+                                Text(nick)
+                            }
+                        }
+                        // Button to edit nick
+                        IconButton(onClick = { editMode.value = !editMode.value }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit nick")
+                        }
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text("ID: ${state.auth.refreshToken.take(8)}...${state.auth.refreshToken.takeLast(8)}")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        val clipboardManager = LocalClipboardManager.current
+                        IconButton(onClick = {
+                            clipboardManager.setText(AnnotatedString(state.auth.refreshToken))
+                            AppGraph.notifications.tryEmit(Notification.Info("ID copied to clipboard"))
+                        }) {
+                            Icon(Theme.Icons.Clipboard, contentDescription = "Copy ID to clipboard")
+                        }
                     }
                 }
             }

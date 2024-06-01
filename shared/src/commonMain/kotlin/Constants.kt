@@ -20,10 +20,11 @@ object Endpoints {
 
     fun shorten(sr: ShortenRequest? = null) = EndpointWithArg(sr, ShortenRequest::class, "/shorten", UrlInfo::class)
 
-    fun tokenRefresh(rt: RefreshTokenRequest? = null) =
-        EndpointWithArg(rt, RefreshTokenRequest::class, "/token/refresh", RefreshResult::class)
+    fun tokenRefresh(rt: RefreshTokenRequest? = null) = EndpointWithArg(rt, RefreshTokenRequest::class, "/token/refresh", AuthResult::class)
 
     fun getUrls(req: GetUrlsRequest? = null) = EndpointWithArg(req, GetUrlsRequest::class, "/urls", UrlsResponse::class)
 
     fun removeUrl(request: RemoveUrlRequest? = null) = EndpointWithArg(request, RemoveUrlRequest::class, "/url/remove", Boolean::class)
+
+    fun updateNick(request: UpdateNickRequest? = null) = EndpointWithArg(request, UpdateNickRequest::class, "/user/nick", Boolean::class)
 }

@@ -33,12 +33,12 @@ object Api {
             install(Auth) {
                 bearer {
                     loadTokens {
-                        val (accessToken, refreshToken) = Storage.loadTokensFromStorage()
-                        if (accessToken.isNotBlank() && refreshToken.isNotBlank()) {
-                            AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
+                        val auth = Storage.loadAuth()
+                        if (auth?.sessionToken?.isNotBlank() == true && auth.refreshToken.isNotBlank()) {
+                            AppGraph.auth.tryEmit(AuthState.Authenticated(auth))
                             BearerTokens(
-                                accessToken = accessToken,
-                                refreshToken = refreshToken,
+                                accessToken = auth.sessionToken,
+                                refreshToken = auth.refreshToken,
                             )
                         } else {
                             requestAndSaveNewTokens()
@@ -54,13 +54,13 @@ object Api {
         }
 
     private suspend fun requestAndSaveNewTokens(): BearerTokens =
-        with(authenticate()) {
+        authenticate().let {
             CoroutineScope(Dispatchers.Default).launch {
-                Storage.saveTokensToStorage(sessionToken, refreshToken)
+                Storage.saveAuth(it)
             }
             BearerTokens(
-                accessToken = sessionToken,
-                refreshToken = refreshToken,
+                accessToken = it.sessionToken,
+                refreshToken = it.refreshToken,
             )
         }
 
@@ -87,8 +87,8 @@ object Api {
     private suspend fun authenticate() =
         run {
             AppGraph.auth.tryEmit(AuthState.Authenticating)
-            postPow(solveChallenge(getPow())).also {
-                AppGraph.auth.tryEmit(AuthState.Authenticated(it.refreshToken))
+            postPow(solveChallenge(getPow())).also { auth ->
+                AppGraph.auth.tryEmit(AuthState.Authenticated(auth))
             }
         }
 
@@ -96,7 +96,7 @@ object Api {
      * Refresh token
      *
      * @param refreshToken String refresh token, used to get new session token
-     * @return [RefreshResult] with new session token
+     * @return [AuthResult] with new session token
      */
     private suspend fun refreshSessionToken(refreshToken: String) =
         authClient doPost Endpoints.tokenRefresh(RefreshTokenRequest(refreshToken))
@@ -130,9 +130,9 @@ object Api {
     }
 
     suspend fun checkAuth() {
-        val (accessToken, refreshToken) = Storage.loadTokensFromStorage()
-        if (accessToken.isNotBlank() && refreshToken.isNotBlank()) {
-            AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
+        val auth = Storage.loadAuth()
+        if (auth?.sessionToken?.isNotBlank() == true && auth.refreshToken.isNotBlank()) {
+            AppGraph.auth.tryEmit(AuthState.Authenticated(auth))
         } else {
             requestAndSaveNewTokens()
         }
@@ -141,10 +141,20 @@ object Api {
     suspend fun doLogin(refreshToken: String): Boolean {
         refreshSessionToken(refreshToken).let {
             CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
-                Storage.saveTokensToStorage(it.sessionToken, refreshToken)
-                AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
+                Storage.saveAuth(it)
+                AppGraph.auth.tryEmit(AuthState.Authenticated(it))
             }
             return true
         }
     }
+
+    suspend fun updateNick(newNick: String): Boolean =
+        (requestsClient doPost Endpoints.updateNick(UpdateNickRequest(newNick))).also {
+            if (it) {
+                val auth = Storage.loadAuth() ?: return@also
+                auth.user.nick = newNick
+                auth.let { Storage.saveAuth(it) }
+                AppGraph.auth.tryEmit(AuthState.Authenticated(auth))
+            }
+        }
 }

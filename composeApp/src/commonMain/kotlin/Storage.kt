@@ -1,35 +1,38 @@
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 
 object Storage {
-    private const val KEY_SESSION = "sessionToken"
-    private const val KEY_REFRESH = "refreshToken"
+    private const val KEY_AUTH = "key_auth"
     private val settingsStorage = Settings()
-    private val cache = mutableMapOf<String, String>()
-
-    suspend fun saveTokensToStorage(
-        sessionToken: String,
-        refreshToken: String,
-    ) {
-        withContext(Dispatchers.Default) {
-            cache[KEY_SESSION] = sessionToken
-            cache[KEY_REFRESH] = refreshToken
-            settingsStorage.putString(KEY_SESSION, sessionToken)
-            settingsStorage.putString(KEY_REFRESH, refreshToken)
-        }
-    }
-
-    suspend fun loadTokensFromStorage() =
-        withContext(Dispatchers.Default) {
-            cache.getOrPut(KEY_SESSION) { settingsStorage.getString(KEY_SESSION, "") } to
-                cache.getOrPut(KEY_REFRESH) { settingsStorage.getString(KEY_REFRESH, "") }
+    private val objCache = mutableMapOf<String, Any?>()
+    private val jsonInstance =
+        Json {
+            isLenient = true
+            ignoreUnknownKeys = true
         }
 
     suspend fun clearData() {
         withContext(Dispatchers.Default) {
-            settingsStorage.remove(KEY_SESSION)
-            settingsStorage.remove(KEY_REFRESH)
+            objCache.clear()
+            settingsStorage.remove(KEY_AUTH)
         }
     }
+
+    suspend fun saveAuth(auth: AuthResult) {
+        withContext(Dispatchers.Default) {
+            objCache[KEY_AUTH] = auth
+            settingsStorage.putString(KEY_AUTH, jsonInstance.encodeToString(AuthResult.serializer(), auth))
+        }
+    }
+
+    suspend fun loadAuth(): AuthResult? =
+        withContext(Dispatchers.Default) {
+            objCache.getOrPut(KEY_AUTH) {
+                settingsStorage.getString(KEY_AUTH, "").takeIf { it.isNotBlank() }?.let {
+                    jsonInstance.decodeFromString(AuthResult.serializer(), it)
+                }
+            } as AuthResult?
+        }
 }

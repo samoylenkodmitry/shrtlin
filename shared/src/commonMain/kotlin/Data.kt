@@ -18,14 +18,11 @@ data class ProofOfWork(val challenge: String, val solution: String, val prefix: 
 @Serializable
 data class User(
     val id: Long,
-    val nick: String,
+    var nick: String,
 )
 
 @Serializable
 data class AuthResult(val refreshToken: String, val sessionToken: String, val user: User)
-
-@Serializable
-data class RefreshResult(val sessionToken: String)
 
 @Serializable
 data class UrlInfo(
@@ -43,8 +40,11 @@ data class GetUrlsRequest(val page: Int, val pageSize: Int)
 @Serializable
 data class UrlsResponse(
     val urls: List<UrlInfo>,
-    val totalPages: Int
+    val totalPages: Int,
 )
 
 @Serializable
 data class RemoveUrlRequest(val id: Long)
+
+@Serializable
+data class UpdateNickRequest(val nick: String)
