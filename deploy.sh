@@ -145,24 +145,23 @@ health_check() {
   local service_url="$2"
   local max_retries=5
   local retry_count=0
-  local success=0
 
   log "Checking health of $service_name at $service_url"
+
   while [ $retry_count -lt $max_retries ]; do
-    if curl -v "$service_url" | grep "HTTP/2 200" > /dev/null; then
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "$service_url")
+    if [ "$http_code" == "200" ]; then
       log "$service_name is healthy."
-      success=1
-      break
+      return 0 # Success! Exit the function
     else
-      log "Health check failed for $service_name. Retrying... ($((retry_count+1))/$max_retries)"
+      log "Health check failed for $service_name (HTTP $http_code). Retrying... ($((retry_count+1))/$max_retries)"
       retry_count=$((retry_count + 1))
       sleep 5
     fi
   done
 
-  if [ $success -ne 1 ]; then
-    error_exit "$service_name health check failed after $max_retries attempts. Exiting..."
-  fi
+  # If the loop completes without success
+  error_exit "$service_name health check failed after $max_retries attempts. Exiting..." 
 }
 
 cleanup() {
