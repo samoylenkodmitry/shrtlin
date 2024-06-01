@@ -1,4 +1,5 @@
 #!/bin/bash
+
 # --- Configuration ---
 RELEASE_TAG="v_0.0.1.03" # Update with desired release tag 
                                # (https://github.com/samoylenkodmitry/shrtlin/releases)
@@ -27,6 +28,9 @@ read -p "Reset local changes? (Y/n): " reset_local
 echo "Resetting local changes (hard reset)..."
 git reset --hard origin/main 
 
+# Save a backup of the current deploy.sh for comparison
+cp deploy.sh deploy.sh.bak
+
 # --- Git Checkout ---
 git fetch --all 
 
@@ -39,6 +43,17 @@ else
   echo "Checking out tag: $CHECKOUT_TAG"
   git checkout "$CHECKOUT_TAG" || { echo "Failed to checkout $CHECKOUT_TAG"; exit 1; }
 fi
+
+# --- Compare old and new deploy.sh ---
+if ! cmp -s deploy.sh deploy.sh.bak; then
+  echo "deploy.sh has changed. Reloading script..."
+  rm deploy.sh.bak
+  exec ./deploy.sh
+  exit 0
+fi
+
+# Remove the backup if no changes
+rm deploy.sh.bak
 
 # --- Create dhparam directory if it doesn't exist ---
 if [ ! -d "./nginx/dhparam" ]; then
