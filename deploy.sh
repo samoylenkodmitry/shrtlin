@@ -226,6 +226,7 @@ fi
 if ! cmp -s deploy.sh deploy.sh.bak; then
   log "deploy.sh has changed. Reloading script..."
   rm deploy.sh.bak
+  chmod +x deploy.sh
   exec ./deploy.sh
   exit 0
 fi
