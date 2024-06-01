@@ -21,7 +21,6 @@ import UrlInfo
 import UrlsResponse
 import User
 import challengeHash
-import com.auth0.jwk.JwkProviderBuilder
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
@@ -33,6 +32,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
+import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -51,11 +51,11 @@ import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.RSAPublicKeySpec
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.concurrent.TimeUnit
 import kotlin.math.ceil
 
 fun main() {
     initDB()
+    println("Starting server at $HOST_LOCAL:$SERVER_PORT")
     embeddedServer(Netty, port = SERVER_PORT, host = HOST_LOCAL, module = Application::module)
         .start(wait = true)
 }
@@ -120,7 +120,7 @@ private fun getDatabaseUser() =
 
 private fun getDatabaseUrl() =
     if (IS_LOCALHOST) {
-        "jdbc:postgresql://localhost:5432/shrtlin"
+        "jdbc:postgresql://0.0.0.0:5432/shrtlin"
     } else {
         System.getenv("DATABASE_URL").takeIf { !it.isNullOrBlank() }.also { println("DATABASE_URL from env: $it") }
             ?: "jdbc:postgresql://postgres:5432/shrtlin"
@@ -128,17 +128,21 @@ private fun getDatabaseUrl() =
 
 // https://github.com/ktorio/ktor-documentation/blob/2.3.10/codeSnippets/snippets/auth-jwt-rs256/src/main/kotlin/com/example/Application.kt
 fun Application.module() {
+    install(CORS) {
+        anyHost()
+        allowCredentials = true
+        allowNonSimpleContentTypes = true
+        allowSameOrigin = true
+        allowHeader(HttpHeaders.Authorization)
+        allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.AccessControlAllowOrigin)
+    }
     install(ContentNegotiation) {
         json()
     }
     val issuer = hostUrl
     val audience = "in.shrtl.app"
     val myRealm = "in.shrtl.app"
-    val jwkProvider =
-        JwkProviderBuilder(issuer)
-            .cached(10, 24, TimeUnit.HOURS)
-            .rateLimited(10, 1, TimeUnit.MINUTES)
-            .build()
     val jwtAlgorithm = loadJWTKey()
     val jwtVerifier = JWT.require(jwtAlgorithm).withIssuer(issuer).build()
 

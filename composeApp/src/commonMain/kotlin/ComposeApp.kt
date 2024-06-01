@@ -1,7 +1,9 @@
 @file:Suppress("ktlint:standard:no-wildcard-imports", "ktlint:standard:function-naming")
+@file:OptIn(ExperimentalFoundationApi::class)
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.datetime.Instant
@@ -201,7 +204,7 @@ fun App() {
             }
         }
 
-        Box {
+        Box(modifier = Modifier.fillMaxSize()) {
             when (val screen = screenState.value) {
                 Screen.Splash -> SplashScreen()
                 Screen.Main -> MainScreen()
@@ -239,8 +242,19 @@ fun NotificationPopup() {
             },
         ) {
             when (n) {
-                is Notification.Info -> Text(n.message, modifier = Modifier.padding(8.dp), color = Color.Green)
-                is Notification.Error -> Text(n.message, modifier = Modifier.padding(8.dp), color = Color.Red)
+                is Notification.Info ->
+                    Text(
+                        n.message,
+                        modifier = Modifier.padding(8.dp),
+                        color = Color.hsl(120f, 0.7f, 0.9f),
+                    )
+
+                is Notification.Error ->
+                    Text(
+                        n.message,
+                        modifier = Modifier.padding(8.dp),
+                        color = Color.hsl(0f, 0.7f, 0.9f),
+                    )
             }
         }
     }
@@ -387,10 +401,9 @@ private fun MainScreen() {
     val showButton = remember { mutableStateOf(true) }
     val userUrls = remember { mutableStateListOf<UrlInfo>() }
     val page = remember { mutableStateOf(1) }
-    val pageSize = 20 // Adjust as needed
-    val totalPages = remember { mutableStateOf(1) } // Start with at least one page
+    val totalPages = remember { mutableStateOf(1) }
     LaunchedEffect(Unit) {
-        val urlsResponse = Repository.getUrls(page.value, pageSize)
+        val urlsResponse = Repository.getUrls(page.value, 20)
         userUrls.addAll(urlsResponse.urls)
         totalPages.value = urlsResponse.totalPages
     }
@@ -438,6 +451,9 @@ private fun MainScreen() {
                         showContent = false
                         showButton.value = false
                         urlInfo = Repository.shorten(inputText)
+                        if (urlInfo == null) {
+                            AppGraph.notifications.tryEmit(Notification.Error("Could not shorten URL"))
+                        }
                         urlInfo?.let { userUrls.add(0, it) }
                         showButton.value = true
                         showContent = true
@@ -481,7 +497,7 @@ private fun MainScreen() {
                                     if (urlInfo?.id == info.id) urlInfo = null
                                 }
                             }
-                        })
+                        }, modifier = Modifier.animateItemPlacement())
                     }
                     item {
                         if (page.value < totalPages.value) {
@@ -559,7 +575,7 @@ private fun ColumnScope.ResultNewUrlCard(
 private fun ButtonDelete(onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(
-            Theme.Icons.Delete,
+            Theme.Icons.Trash2,
             contentDescription = "Delete",
             modifier = Modifier.size(16.dp),
         )
@@ -620,7 +636,7 @@ private fun ButtonUser(modifier: Modifier = Modifier) {
         }
     }, modifier = modifier) {
         Icon(
-            Theme.Icons.UserMinus,
+            Theme.Icons.User,
             contentDescription = "Logout",
             modifier =
                 Modifier.graphicsLayer {
@@ -634,11 +650,12 @@ private fun ButtonUser(modifier: Modifier = Modifier) {
 fun UrlInfoCard(
     info: UrlInfo,
     onUrlRemove: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Card(
         elevation = 2.dp,
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
     ) {

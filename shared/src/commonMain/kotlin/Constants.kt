@@ -1,10 +1,9 @@
 import kotlin.reflect.KClass
 
-const val SERVER_PORT = 80
-
 // POW Challenge difficulty prefix bytes in hex format
-const val DIFFICULTY_PREFIX = "00000"
+const val DIFFICULTY_PREFIX = "0000"
 const val IS_LOCALHOST = false // Set to true to run locally
+val SERVER_PORT = if (IS_LOCALHOST) 8080 else 80
 val hostDebug = "0.0.0.0"
 val hostRelease = "shrtl.in"
 val hostName = if (IS_LOCALHOST) hostDebug else hostRelease

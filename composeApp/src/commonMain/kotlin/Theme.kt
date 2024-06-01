@@ -10,7 +10,8 @@ import androidx.compose.ui.unit.dp
 
 object Theme {
     object Icons {
-        public val Clipboard: ImageVector
+        // MIT https://github.com/DevSrSouza/compose-icons
+        val Clipboard: ImageVector
             get() {
                 if (clipboard != null) {
                     return clipboard!!
@@ -71,7 +72,9 @@ object Theme {
             }
 
         private var clipboard: ImageVector? = null
-        public val UserMinus: ImageVector
+
+        // MIT https://github.com/DevSrSouza/compose-icons
+        val UserMinus: ImageVector
             get() {
                 if (userMinus != null) {
                     return userMinus!!
@@ -135,7 +138,9 @@ object Theme {
             }
 
         private var userMinus: ImageVector? = null
-        public val Delete: ImageVector
+
+        // MIT https://github.com/DevSrSouza/compose-icons
+        val Delete: ImageVector
             get() {
                 if (delete != null) {
                     return delete!!
@@ -200,5 +205,140 @@ object Theme {
             }
 
         private var delete: ImageVector? = null
+
+        // MIT https://github.com/DevSrSouza/compose-icons
+        val User: ImageVector
+            get() {
+                if (user != null) {
+                    return user!!
+                }
+                user =
+                    Builder(
+                        name = "User",
+                        defaultWidth = 24.0.dp,
+                        defaultHeight = 24.0.dp,
+                        viewportWidth = 24.0f,
+                        viewportHeight = 24.0f,
+                    ).apply {
+                        path(
+                            fill = SolidColor(Color(0x00000000)),
+                            stroke = SolidColor(Color(0xFF000000)),
+                            strokeLineWidth = 2.0f,
+                            strokeLineCap = Round,
+                            strokeLineJoin =
+                                StrokeJoin.Companion.Round,
+                            strokeLineMiter = 4.0f,
+                            pathFillType = NonZero,
+                        ) {
+                            moveTo(20.0f, 21.0f)
+                            verticalLineToRelative(-2.0f)
+                            arcToRelative(4.0f, 4.0f, 0.0f, false, false, -4.0f, -4.0f)
+                            horizontalLineTo(8.0f)
+                            arcToRelative(4.0f, 4.0f, 0.0f, false, false, -4.0f, 4.0f)
+                            verticalLineToRelative(2.0f)
+                        }
+                        path(
+                            fill = SolidColor(Color(0x00000000)),
+                            stroke = SolidColor(Color(0xFF000000)),
+                            strokeLineWidth = 2.0f,
+                            strokeLineCap = Round,
+                            strokeLineJoin =
+                                StrokeJoin.Companion.Round,
+                            strokeLineMiter = 4.0f,
+                            pathFillType = NonZero,
+                        ) {
+                            moveTo(12.0f, 7.0f)
+                            moveToRelative(-4.0f, 0.0f)
+                            arcToRelative(4.0f, 4.0f, 0.0f, true, true, 8.0f, 0.0f)
+                            arcToRelative(4.0f, 4.0f, 0.0f, true, true, -8.0f, 0.0f)
+                        }
+                    }
+                        .build()
+                return user!!
+            }
+
+        private var user: ImageVector? = null
+        val Trash2: ImageVector
+            get() {
+                if (trash2 != null) {
+                    return trash2!!
+                }
+                trash2 =
+                    Builder(
+                        name = "Trash2",
+                        defaultWidth = 24.0.dp,
+                        defaultHeight = 24.0.dp,
+                        viewportWidth = 24.0f,
+                        viewportHeight = 24.0f,
+                    ).apply {
+                        path(
+                            fill = SolidColor(Color(0x00000000)),
+                            stroke = SolidColor(Color(0xFF000000)),
+                            strokeLineWidth = 2.0f,
+                            strokeLineCap = Round,
+                            strokeLineJoin =
+                                StrokeJoin.Companion.Round,
+                            strokeLineMiter = 4.0f,
+                            pathFillType = NonZero,
+                        ) {
+                            moveTo(3.0f, 6.0f)
+                            lineToRelative(2.0f, 0.0f)
+                            lineToRelative(16.0f, 0.0f)
+                        }
+                        path(
+                            fill = SolidColor(Color(0x00000000)),
+                            stroke = SolidColor(Color(0xFF000000)),
+                            strokeLineWidth = 2.0f,
+                            strokeLineCap = Round,
+                            strokeLineJoin =
+                                StrokeJoin.Companion.Round,
+                            strokeLineMiter = 4.0f,
+                            pathFillType = NonZero,
+                        ) {
+                            moveTo(19.0f, 6.0f)
+                            verticalLineToRelative(14.0f)
+                            arcToRelative(2.0f, 2.0f, 0.0f, false, true, -2.0f, 2.0f)
+                            horizontalLineTo(7.0f)
+                            arcToRelative(2.0f, 2.0f, 0.0f, false, true, -2.0f, -2.0f)
+                            verticalLineTo(6.0f)
+                            moveToRelative(3.0f, 0.0f)
+                            verticalLineTo(4.0f)
+                            arcToRelative(2.0f, 2.0f, 0.0f, false, true, 2.0f, -2.0f)
+                            horizontalLineToRelative(4.0f)
+                            arcToRelative(2.0f, 2.0f, 0.0f, false, true, 2.0f, 2.0f)
+                            verticalLineToRelative(2.0f)
+                        }
+                        path(
+                            fill = SolidColor(Color(0x00000000)),
+                            stroke = SolidColor(Color(0xFF000000)),
+                            strokeLineWidth = 2.0f,
+                            strokeLineCap = Round,
+                            strokeLineJoin =
+                                StrokeJoin.Companion.Round,
+                            strokeLineMiter = 4.0f,
+                            pathFillType = NonZero,
+                        ) {
+                            moveTo(10.0f, 11.0f)
+                            lineTo(10.0f, 17.0f)
+                        }
+                        path(
+                            fill = SolidColor(Color(0x00000000)),
+                            stroke = SolidColor(Color(0xFF000000)),
+                            strokeLineWidth = 2.0f,
+                            strokeLineCap = Round,
+                            strokeLineJoin =
+                                StrokeJoin.Companion.Round,
+                            strokeLineMiter = 4.0f,
+                            pathFillType = NonZero,
+                        ) {
+                            moveTo(14.0f, 11.0f)
+                            lineTo(14.0f, 17.0f)
+                        }
+                    }
+                        .build()
+                return trash2!!
+            }
+
+        private var trash2: ImageVector? = null
     }
 }

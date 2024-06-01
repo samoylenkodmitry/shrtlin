@@ -140,9 +140,9 @@ object Api {
 
     suspend fun doLogin(refreshToken: String): Boolean {
         refreshSessionToken(refreshToken).let {
-            AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
             CoroutineScope(Dispatchers.Default + SupervisorJob()).launch {
                 Storage.saveTokensToStorage(it.sessionToken, refreshToken)
+                AppGraph.auth.tryEmit(AuthState.Authenticated(refreshToken))
             }
             return true
         }
