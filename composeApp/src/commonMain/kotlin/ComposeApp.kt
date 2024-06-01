@@ -5,12 +5,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -44,6 +48,8 @@ sealed interface Screen {
     data object Login : Screen
 
     data class Error(val message: String) : Screen
+
+    data class Card(val info: UrlInfo) : Screen
 }
 
 object Navigator {
@@ -71,6 +77,10 @@ object Navigator {
 
     fun login() {
         screenFlow.tryEmit(Screen.Login)
+    }
+
+    fun cardScreen(info: UrlInfo) {
+        screenFlow.tryEmit(Screen.Card(info))
     }
 }
 
@@ -210,6 +220,7 @@ fun App() {
                 Screen.Main -> MainScreen()
                 Screen.UserProfile -> UserProfileScreen()
                 Screen.Login -> LoginScreen()
+                is Screen.Card -> CardScreen(screen.info)
                 is Screen.Error -> ErrorScreen(screen.message)
             }
             Box(modifier = Modifier.width(300.dp).height(100.dp).align(Alignment.BottomEnd)) {
@@ -261,8 +272,8 @@ fun NotificationPopup() {
 }
 
 @Composable
-fun ErrorScreen(message: String) {
-    Column {
+fun BoxScope.ErrorScreen(message: String) {
+    Column(modifier = Modifier.align(Alignment.Center)) {
         Text("Error: $message")
         Button(onClick = {
             Navigator.main()
@@ -273,14 +284,41 @@ fun ErrorScreen(message: String) {
 }
 
 @Composable
-fun UserProfileScreen() {
+fun BoxScope.UserProfileScreen() {
     val authState = AppGraph.auth.collectAsState(AuthState.Unauthenticated)
+    val scope = rememberCoroutineScope()
 
-    Column {
-        Text("User Profile")
+    IconButton(
+        onClick = { Navigator.main() },
+        modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
+    ) {
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    }
+
+    // Column for user profile info
+    Column(
+        modifier = Modifier.align(Alignment.Center).padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Placeholder for a circle (e.g., user avatar)
+        Box(modifier = Modifier.size(100.dp).background(Color.Gray, shape = CircleShape))
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // User ID
         when (val state = authState.value) {
             is AuthState.Authenticated -> {
-                Text("User ID: ${state.id.take(8)}...${state.id.takeLast(8)}")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("ID: ${state.id.take(8)}...${state.id.takeLast(8)}")
+                    Spacer(modifier = Modifier.width(8.dp))
+                    val clipboardManager = LocalClipboardManager.current
+                    IconButton(onClick = {
+                        clipboardManager.setText(AnnotatedString(state.id))
+                        AppGraph.notifications.tryEmit(Notification.Info("ID copied to clipboard"))
+                    }) {
+                        Icon(Theme.Icons.Clipboard, contentDescription = "Copy ID to clipboard")
+                    }
+                }
             }
 
             AuthState.AuthError -> {
@@ -295,47 +333,47 @@ fun UserProfileScreen() {
                 Text("Unauthenticated")
             }
         }
-        Button(onClick = {
-            Navigator.login()
-        }) {
-            Text("Login by ID")
-        }
-        // Button to copy id to clipboard
-        val state = authState.value
-        if (state is AuthState.Authenticated) {
-            val clipboardManager = LocalClipboardManager.current
-            Button(onClick = {
-                clipboardManager.setText(buildAnnotatedString { append(state.id) })
-            }) {
-                Text("Copy ID to clipboard")
+        Row(
+            modifier = Modifier.padding(36.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Button(onClick = { Navigator.login() }) {
+                Text("Login by ID")
             }
-        }
 
-        Button(onClick = {
-            Navigator.main()
-        }) {
-            Text("Go main")
-        }
-        val scope = rememberCoroutineScope()
-        Button(onClick = {
-            scope.launch {
-                Repository.logout()
+            val showRemoveButton = remember { mutableStateOf(false) }
+            Column(modifier = Modifier.graphicsLayer { rotationZ = if (showRemoveButton.value) -20f else 0f }) {
+                Button(onClick = { showRemoveButton.value = true }) {
+                    Text("New identity")
+                }
+                AnimatedVisibility(showRemoveButton.value) {
+                    Column {
+                        Text("Are you sure?")
+                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            Button(onClick = { scope.launch { Repository.logout() } }) {
+                                Text("Yes", color = Color.Red)
+                            }
+                            Button(onClick = { showRemoveButton.value = false }) {
+                                Text("No", color = Color.Green)
+                            }
+                        }
+                    }
+                }
             }
-        }) {
-            Text("Logout")
         }
     }
 }
 
 @Composable
-fun LoginScreen() {
-    Column {
-        // Back button
-        Button(onClick = {
-            Navigator.main()
-        }) {
-            Text("Go main")
-        }
+fun BoxScope.LoginScreen() {
+    // Back button
+    IconButton(
+        onClick = { Navigator.main() },
+        modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
+    ) {
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    }
+    Column(modifier = Modifier.align(Alignment.Center)) {
         // Text field for user ID
         var userId by remember { mutableStateOf("") }
         TextField(
@@ -354,7 +392,7 @@ fun LoginScreen() {
                     Navigator.userProfile()
                 }
             }
-        }) {
+        }, modifier = Modifier.padding(36.dp).align(Alignment.CenterHorizontally)) {
             Text("Login")
         }
     }
@@ -396,7 +434,6 @@ private fun SplashScreen() {
 private fun MainScreen() {
     var showContent by remember { mutableStateOf(true) }
     var inputText by remember { mutableStateOf("") }
-    var urlInfo by remember { mutableStateOf<UrlInfo?>(null) }
     val scope = rememberCoroutineScope()
     val showButton = remember { mutableStateOf(true) }
     val userUrls = remember { mutableStateListOf<UrlInfo>() }
@@ -411,15 +448,15 @@ private fun MainScreen() {
         modifier =
             Modifier
                 .fillMaxSize()
-                .padding(16.dp),
+                .padding(top = 16.dp),
     ) {
-        ButtonUser(Modifier.align(Alignment.TopEnd))
+        ButtonUser(Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 32.dp))
         Column(
             modifier =
                 Modifier
                     .fillMaxWidth(fraction = 0.7f)
                     .align(Alignment.Center)
-                    .padding(16.dp),
+                    .padding(top = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
@@ -450,7 +487,7 @@ private fun MainScreen() {
                     scope.launch {
                         showContent = false
                         showButton.value = false
-                        urlInfo = Repository.shorten(inputText)
+                        val urlInfo = Repository.shorten(inputText)
                         if (urlInfo == null) {
                             AppGraph.notifications.tryEmit(Notification.Error("Could not shorten URL"))
                         }
@@ -463,41 +500,34 @@ private fun MainScreen() {
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(36.dp))
 
             Column(modifier = Modifier.fillMaxSize()) {
                 LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier =
+                        Modifier
+                            .widthIn(max = 600.dp)
+                            .align(Alignment.CenterHorizontally),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    item {
-                        // Display the result
-                        ResultNewUrlCard(
-                            showContent = showContent,
-                            urlInfo = urlInfo,
-                            scope = scope,
-                            deleteUrl = {
+                    items(userUrls) { info ->
+                        UrlInfoCard(
+                            info = info,
+                            onUrlRemove = {
                                 scope.launch {
-                                    urlInfo?.let { info ->
-                                        if (Repository.removeUrl(info.id)) {
-                                            userUrls.removeAll { it.id == info.id }
-                                            if (urlInfo?.id == info.id) urlInfo = null
-                                        }
+                                    if (Repository.removeUrl(info.id)) {
+                                        userUrls.removeAll { it.id == info.id }
+                                        AppGraph.notifications.tryEmit(Notification.Info("URL removed"))
+                                    } else {
+                                        AppGraph.notifications.tryEmit(Notification.Error("Could not remove URL"))
                                     }
                                 }
                             },
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier =
+                                Modifier
+                                    .animateItemPlacement()
+                                    .clickable { Navigator.cardScreen(info) },
                         )
-                    }
-                    items(userUrls) { info ->
-                        UrlInfoCard(info = info, onUrlRemove = {
-                            scope.launch {
-                                if (Repository.removeUrl(info.id)) {
-                                    userUrls.removeAll { it.id == info.id }
-                                    if (urlInfo?.id == info.id) urlInfo = null
-                                }
-                            }
-                        }, modifier = Modifier.animateItemPlacement())
                     }
                     item {
                         if (page.value < totalPages.value) {
@@ -513,61 +543,67 @@ private fun MainScreen() {
 }
 
 @Composable
-private fun ColumnScope.ResultNewUrlCard(
-    showContent: Boolean,
-    urlInfo: UrlInfo?,
-    scope: CoroutineScope,
-    deleteUrl: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    AnimatedVisibility(showContent, modifier = modifier) {
-        urlInfo?.let { info ->
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                SelectionContainer {
-                    Text(
-                        text = AnnotatedString("Original URL: ${info.originalUrl}"),
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = AnnotatedString("Short URL: "),
-                        style = TextStyle(color = Color.Gray),
-                    )
-                    ClickableText(
-                        text = AnnotatedString(info.shortUrl),
-                        onClick = { scope.launch { Repository.openUrl(info.shortUrl) } },
-                        style =
-                            TextStyle(
-                                color = Color.Blue,
-                                textDecoration = TextDecoration.Underline,
-                            ),
-                    )
-                    Spacer(modifier = Modifier.width(8.dp)) // Add space between text and button
-                    ButtonCopyToClipboard(info.shortUrl)
-                    ButtonDelete(deleteUrl)
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = AnnotatedString("Comment: ${info.comment}"),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = AnnotatedString("User ID: ${info.userId}"),
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                val createdAt =
-                    Instant.fromEpochMilliseconds(info.timestamp)
-                        .toLocalDateTime(TimeZone.currentSystemDefault())
-                Text(
-                    text = AnnotatedString("Created at: ${createdAt.date} ${createdAt.time}"),
-                )
-            }
+private fun BoxScope.CardScreen(info: UrlInfo) {
+    val scope = rememberCoroutineScope()
+    // back button
+    IconButton(
+        onClick = { Navigator.main() },
+        modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
+    ) {
+        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+    }
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier.align(Alignment.Center),
+    ) {
+        SelectionContainer {
+            Text(
+                text = AnnotatedString("Original URL: ${info.originalUrl}"),
+            )
         }
+        Spacer(modifier = Modifier.height(8.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(
+                text = AnnotatedString("Short URL: "),
+                style = TextStyle(color = Color.Gray),
+            )
+            ClickableText(
+                text = AnnotatedString(info.shortUrl),
+                onClick = { scope.launch { Repository.openUrl(info.shortUrl) } },
+                style =
+                    TextStyle(
+                        color = Color.Blue,
+                        textDecoration = TextDecoration.Underline,
+                    ),
+            )
+            Spacer(modifier = Modifier.width(8.dp)) // Add space between text and button
+            ButtonCopyToClipboard(info.shortUrl)
+            ButtonDelete(onClick = {
+                scope.launch {
+                    if (Repository.removeUrl(info.id)) {
+                        AppGraph.notifications.tryEmit(Notification.Info("URL removed"))
+                    } else {
+                        AppGraph.notifications.tryEmit(Notification.Error("Could not remove URL"))
+                    }
+                }
+            })
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = AnnotatedString("Comment: ${info.comment}"),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = AnnotatedString("User ID: ${info.userId}"),
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        val createdAt =
+            Instant.fromEpochMilliseconds(info.timestamp)
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+        Text(
+            text = AnnotatedString("Created at: ${createdAt.date} ${createdAt.time}"),
+        )
     }
 }
 
