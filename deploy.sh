@@ -39,6 +39,7 @@ check_dependencies() {
 download_artifact() {
   local artifact_name="$1"
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$artifact_name"
+  log "Downloading $artifact_name from $artifact_url..."
   wget -O "$artifact_name" "$artifact_url" || error_exit "Download failed for $artifact_name"
   log "Downloaded $artifact_name successfully."
 }
@@ -248,7 +249,6 @@ backup_existing_deployment
 
 log "Checking for existing artifacts:"
 
-# Get overwrite decisions upfront (using our simplified function)
 frontend_overwrite=$(prompt_for_overwrite "$FRONTEND_ARTIFACT_NAME")
 backend_overwrite=$(prompt_for_overwrite "$BACKEND_ARTIFACT_NAME")
 # Start downloads based on decisions, ALL in the background

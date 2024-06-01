@@ -450,7 +450,7 @@ private fun MainScreen() {
                 .fillMaxSize()
                 .padding(top = 16.dp),
     ) {
-        ButtonUser(Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 32.dp))
+        ButtonUser(Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 40.dp))
         Column(
             modifier =
                 Modifier
