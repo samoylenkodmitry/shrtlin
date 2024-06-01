@@ -149,7 +149,7 @@ health_check() {
 
   log "Checking health of $service_name at $service_url"
   while [ $retry_count -lt $max_retries ]; do
-    if curl -s --head "$service_url" | grep "200 OK" > /dev/null; then
+    if curl -s --head "$service_url" | grep "HTTP/2 200" > /dev/null; then
       log "$service_name is healthy."
       success=1
       break
