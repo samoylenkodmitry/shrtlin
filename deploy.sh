@@ -38,13 +38,24 @@ check_dependencies() {
 
 download_artifact() {
   local artifact_name="$1"
-  if [ -f "$artifact_name" ];then
-    read -p "$artifact_name already exists. Overwrite? (N/y): " overwrite
-    [ "$overwrite" != "y" ] && log "Skipping download for $artifact_name" && return 0
-  fi
   local artifact_url="https://github.com/samoylenkodmitry/shrtlin/releases/download/$RELEASE_TAG/$artifact_name"
   wget -O "$artifact_name" "$artifact_url" || error_exit "Download failed for $artifact_name"
   log "Downloaded $artifact_name successfully."
+}
+
+# Function to handle the overwrite prompt and trigger download
+handle_download() {
+  local artifact_name="$1"
+  if [ -f "$artifact_name" ]; then
+    read -p "$artifact_name already exists. Overwrite? (N/y): " overwrite
+    if [ "$overwrite" == "y" ]; then
+      download_artifact "$artifact_name" & # Download in background if overwriting
+    else
+      log "Skipping download for $artifact_name"
+    fi
+  else
+    download_artifact "$artifact_name" & # Download in background if file doesn't exist
+  fi
 }
 
 load_dotenv() {
@@ -235,8 +246,8 @@ log "Backing up existing deployment."
 backup_existing_deployment
 
 log "Downloading and preparing artifacts."
-download_artifact "$FRONTEND_ARTIFACT_NAME" &
-download_artifact "$BACKEND_ARTIFACT_NAME" &
+handle_download "$FRONTEND_ARTIFACT_NAME" 
+handle_download "$BACKEND_ARTIFACT_NAME" 
 wait
 
 unzip -o "$FRONTEND_ARTIFACT_NAME" || error_exit "Failed to unzip $FRONTEND_ARTIFACT_NAME"
