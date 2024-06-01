@@ -334,7 +334,9 @@ fun BoxScope.UserProfileScreen() {
             }
         }
         Row(
-            modifier = Modifier.padding(36.dp),
+            modifier =
+                Modifier
+                    .padding(36.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Button(onClick = { Navigator.login() }) {
@@ -342,14 +344,25 @@ fun BoxScope.UserProfileScreen() {
             }
 
             val showRemoveButton = remember { mutableStateOf(false) }
-            Column(modifier = Modifier.graphicsLayer { rotationZ = if (showRemoveButton.value) -20f else 0f }) {
-                Button(onClick = { showRemoveButton.value = true }) {
+            Column(
+                modifier =
+                    Modifier
+                        .graphicsLayer {
+                            rotationZ = if (showRemoveButton.value) -20f else 0f
+                            shadowElevation = if (showRemoveButton.value) 8f else 0f
+                        }
+                        .padding(top = if (showRemoveButton.value) 20.dp else 0.dp),
+            ) {
+                Button(
+                    onClick = { showRemoveButton.value = true },
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                ) {
                     Text("New identity")
                 }
                 AnimatedVisibility(showRemoveButton.value) {
-                    Column {
-                        Text("Are you sure?")
-                        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp)) {
+                        Text("Are you sure?", modifier = Modifier.align(Alignment.CenterHorizontally))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             Button(onClick = { scope.launch { Repository.logout() } }) {
                                 Text("Yes", color = Color.Red)
                             }
@@ -450,7 +463,7 @@ private fun MainScreen() {
                 .fillMaxSize()
                 .padding(top = 16.dp),
     ) {
-        ButtonUser(Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 40.dp))
+        ButtonUser(Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 20.dp))
         Column(
             modifier =
                 Modifier
@@ -506,7 +519,6 @@ private fun MainScreen() {
                 LazyColumn(
                     modifier =
                         Modifier
-                            .widthIn(max = 600.dp)
                             .align(Alignment.CenterHorizontally),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
