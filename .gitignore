@@ -45,3 +45,6 @@ ktor.key
 ktor.pub
 wget-log
 all.md
+deploy.sh.bak
+backups/
+deploy.log
