@@ -226,7 +226,13 @@ fi
 if ! cmp -s deploy.sh deploy.sh.bak; then
   log "deploy.sh has changed. Reloading script..."
   rm deploy.sh.bak
-  chmod +x deploy.sh
+  # ask user if them want to run new script
+  read -p "deploy.sh has changed. Do you want to run the new script? (Y/n): " run_new_script
+  if [ "$run_new_script" == "n" ]; then
+    log "Skipping new script. Exiting..."
+    exit 0
+  fi
+  sudo chmod +x ./deploy.sh
   exec ./deploy.sh
   exit 0
 fi
