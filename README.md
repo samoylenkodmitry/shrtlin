@@ -12,7 +12,7 @@
 
 # shrtlin
 `shrtlin` is a feature-rich, open-source `URL shortening` service.
-It provides a seamless experience across Android, iOS, Web, and Desktop.
+It provides a seamless experience across Android, iOS, Web, and Desktop Linux, Mac, Windows.
 
 ## About
 
