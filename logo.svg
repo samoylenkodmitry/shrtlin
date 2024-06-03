@@ -1,0 +1,10 @@
+<svg width="220" height="100" xmlns="http://www.w3.org/2000/svg">
+  
+  <!-- Reversed 'S' Link Icon -->
+  <g fill="none">
+    <path d="M40,30 h20 a10,10 0 0 1 0,20 h-10 a10,10 0 0 0 0,20 h20" stroke="#007BFF" stroke-width="6"/>
+  </g>
+
+  <!-- Text -->
+  <text x="80" y="65" font-family="Arial, sans-serif" font-size="46" fill="#333355">hrtlin</text>
+</svg>

@@ -234,6 +234,13 @@ fi
 
 rm deploy.sh.bak
 
+# Load configurations again after checkout
+if [ -f "$CONFIG_FILE" ]; then
+  source "$CONFIG_FILE"
+else
+  error_exit "Configuration file $CONFIG_FILE not found. Exiting..."
+fi
+
 # Ensure necessary directories exist
 mkdir -p ./nginx/dhparam ./server/build/libs
 

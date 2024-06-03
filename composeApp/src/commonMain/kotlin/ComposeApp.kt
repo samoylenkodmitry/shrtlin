@@ -3,12 +3,11 @@
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
@@ -24,10 +23,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -243,6 +245,31 @@ fun App() {
 }
 
 @Composable
+fun Logo(modifier: Modifier = Modifier) {
+    Row(
+        modifier = modifier.padding(start = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Image(
+            painter = rememberVectorPainter(Theme.Icons.Logo),
+            contentDescription = "Logo",
+            modifier = Modifier,
+        )
+        Text(
+            text = "hrtlin",
+            style = TextStyle(fontSize = 46.sp),
+            color = Color(0xFF333355),
+            fontFamily = FontFamily.SansSerif,
+            fontWeight = FontWeight.Bold,
+            modifier =
+                Modifier.graphicsLayer {
+                    translationX = -45f
+                },
+        )
+    }
+}
+
+@Composable
 fun NotificationPopup() {
     val scope = rememberCoroutineScope()
     var notification by remember { mutableStateOf<Notification?>(null) }
@@ -329,7 +356,6 @@ fun BoxScope.UserProfileScreen() {
             is AuthState.Authenticated -> {
                 Column {
                     val userId = state.auth.user.id
-                    Text("User #: $userId")
                     val nick = state.auth.user.nick
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val editMode = remember { mutableStateOf(false) }
@@ -408,7 +434,7 @@ fun BoxScope.UserProfileScreen() {
                     Modifier
                         .graphicsLayer {
                             rotationZ = if (showRemoveButton.value) -20f else 0f
-                            shadowElevation = if (showRemoveButton.value) 8f else 0f
+                            shadowElevation = if (showRemoveButton.value) 4f else 0f
                         }
                         .padding(top = if (showRemoveButton.value) 20.dp else 0.dp),
             ) {
@@ -513,7 +539,10 @@ private fun SplashScreen() {
                 )
                 .padding(16.dp),
     ) {
-        CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+            Logo()
+            CircularProgressIndicator()
+        }
     }
 }
 
@@ -557,12 +586,14 @@ private fun MainScreen() {
                     )
                 }
 
+            Logo(modifier = Modifier.padding(16.dp))
             // Input TextField
             TextField(
                 value = inputText,
                 onValueChange = { inputText = it },
                 textStyle = TextStyle(brush = brush),
                 placeholder = { Text("Enter URL here") },
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -589,11 +620,14 @@ private fun MainScreen() {
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            Column(modifier = Modifier.fillMaxSize()) {
+            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                val scrollState = rememberLazyListState()
                 LazyColumn(
+                    state = scrollState,
                     modifier =
                         Modifier
-                            .align(Alignment.CenterHorizontally),
+                            .fillMaxWidth()
+                            .align(Alignment.TopCenter),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     items(userUrls) { info ->
@@ -622,7 +656,42 @@ private fun MainScreen() {
                             }
                         }
                     }
+                    item {
+                        Spacer(modifier = Modifier.height(48.dp))
+                    }
                 }
+                if (scrollState.canScrollBackward) {
+                    Box(
+                        modifier =
+                            Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.TopCenter)
+                                .height(32.dp)
+                                .background(
+                                    brush =
+                                        Brush.verticalGradient(
+                                            colors = listOf(Color.White, Color.Transparent),
+                                            startY = 0f,
+                                            endY = 32f,
+                                        ),
+                                ),
+                    )
+                }
+                Box(
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .height(32.dp)
+                            .background(
+                                brush =
+                                    Brush.verticalGradient(
+                                        colors = listOf(Color.Transparent, Color.White),
+                                        startY = 0f,
+                                        endY = 32f,
+                                    ),
+                            ),
+                )
             }
         }
     }
@@ -779,7 +848,7 @@ fun UrlInfoCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 10.dp, vertical = 4.dp),
     ) {
         Row(
             modifier =

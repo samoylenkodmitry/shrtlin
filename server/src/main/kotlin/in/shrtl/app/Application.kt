@@ -16,6 +16,7 @@ import IS_LOCALHOST
 import ProofOfWork
 import RemoveUrlRequest
 import SERVER_PORT
+import SQUARE_ICON_DATA
 import UpdateNickRequest
 import UrlInfo
 import UrlsResponse
@@ -36,6 +37,7 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.util.*
 import io.ktor.util.collections.*
 import kotlinx.datetime.*
 import org.jetbrains.exposed.dao.id.LongIdTable
@@ -52,6 +54,7 @@ import java.security.spec.RSAPublicKeySpec
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 import kotlin.math.ceil
+import kotlin.text.toCharArray
 
 fun main() {
     initDB()
@@ -72,6 +75,7 @@ private val hostName = if (IS_LOCALHOST) HOST_LOCAL else hostRelease
 private val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "https://$hostName"
 private val privateKeyPath = if (IS_LOCALHOST) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
 private val certsPath = if (IS_LOCALHOST) "./server/certs" else "/run/secrets/certs"
+private val SQUARE_ICON_BYTES = SQUARE_ICON_DATA.decodeBase64Bytes()
 
 object Urls : LongIdTable() {
     val originalUrl = varchar("original_url", 2048)
@@ -166,7 +170,7 @@ fun Application.module() {
         get("/") { call.respondText("Ktor: ${Greeting().greet()}") }
         get("/favicon.ico") {
             println("Favicon requested")
-            call.respondText("")
+            call.respondBytes(SQUARE_ICON_BYTES, ContentType.Image.SVG)
         }
         File(certsPath).walkTopDown().forEach { println(it) }
         File(certsPath, "jwks.json").readText().also { println(it) }
