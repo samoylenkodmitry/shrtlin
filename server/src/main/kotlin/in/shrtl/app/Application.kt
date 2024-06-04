@@ -10,15 +10,18 @@ import AuthResult
 import Challenge
 import DIFFICULTY_PREFIX
 import EndpointWithArg
+import GetClicksRequest
 import GetUrlsRequest
 import Greeting
 import IS_LOCALHOST
+import Period
 import ProofOfWork
 import RemoveUrlRequest
 import SERVER_PORT
 import SQUARE_ICON_DATA
 import UpdateNickRequest
 import UrlInfo
+import UrlStats
 import UrlsResponse
 import User
 import challengeHash
@@ -40,9 +43,13 @@ import io.ktor.server.routing.*
 import io.ktor.util.*
 import io.ktor.util.collections.*
 import kotlinx.datetime.*
+import kotlinx.datetime.TimeZone
 import org.jetbrains.exposed.dao.id.LongIdTable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
+import redis.clients.jedis.JedisPool
+import redis.clients.jedis.JedisPoolConfig
+import redis.clients.jedis.timeseries.TimeSeriesProtocol.TimeSeriesCommand
 import java.io.File
 import java.security.KeyFactory
 import java.security.SecureRandom
@@ -51,13 +58,16 @@ import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.RSAPublicKeySpec
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.*
 import kotlin.math.ceil
 import kotlin.text.toCharArray
 
 fun main() {
     initDB()
+    initRedis()
     println("Starting server at $HOST_LOCAL:$SERVER_PORT")
     embeddedServer(Netty, port = SERVER_PORT, host = HOST_LOCAL, module = Application::module)
         .start(wait = true)
@@ -76,6 +86,9 @@ private val hostUrl = if (IS_LOCALHOST) "http://$hostName:$SERVER_PORT" else "ht
 private val privateKeyPath = if (IS_LOCALHOST) "./server/ktor.pk8" else "/run/secrets/ktor_pk8"
 private val certsPath = if (IS_LOCALHOST) "./server/certs" else "/run/secrets/certs"
 private val SQUARE_ICON_BYTES = SQUARE_ICON_DATA.decodeBase64Bytes()
+private val redishost = if (IS_LOCALHOST) "localhost" else "redis"
+private val redisPort = 6379
+lateinit var jedisPool: JedisPool
 
 object Urls : LongIdTable() {
     val originalUrl = varchar("original_url", 2048)
@@ -101,6 +114,11 @@ fun initDB() {
     transaction {
         SchemaUtils.create(Urls, Users)
     }
+}
+
+fun initRedis() {
+    val poolConfig = JedisPoolConfig()
+    jedisPool = JedisPool(poolConfig, redishost, redisPort)
 }
 
 private fun getDatabasePassword() =
@@ -356,22 +374,104 @@ fun Application.module() {
                 }?.let { success -> call.respond(HttpStatusCode.OK, success) }
                     ?: call.respond(HttpStatusCode.BadRequest, "Invalid request")
             }
+            post(Endpoints.getClicks()) {
+                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+                if (userId == null) {
+                    call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
+                    return@post
+                }
+                receiveArgs(it) { request: GetClicksRequest ->
+                    val clicks = getClicksFromRedisTimeSeries(request.urlId, request.period)
+                    UrlStats(clicks = clicks)
+                }?.let { result -> call.respond(HttpStatusCode.OK, result) }
+                    ?: call.respond(HttpStatusCode.BadRequest, "Invalid request")
+            }
         }
         get("/{shortUrl}") {
             val shortUrl = call.parameters["shortUrl"]
             println("Redirecting: $shortUrl")
-            val originalUrl =
+            val urlInfo =
                 transaction {
-                    Urls.select { Urls.shortUrl eq shortUrl!! }.singleOrNull()?.get(Urls.originalUrl)
+                    Urls.select { Urls.shortUrl eq shortUrl!! }.singleOrNull()?.let {
+                        UrlInfo(
+                            it[Urls.id].value,
+                            it[Urls.originalUrl],
+                            "$hostUrl/${it[Urls.shortUrl]}",
+                            it[Urls.comment],
+                            it[Urls.userId],
+                            it[Urls.timestamp],
+                        )
+                    }
                 }
-            println("Original URL: $originalUrl")
-            if (originalUrl != null) {
-                call.respondRedirect("http://$originalUrl")
+
+            println("Original URL: ${urlInfo?.originalUrl}")
+            if (urlInfo != null) {
+                recordClick(urlInfo.id)
+                call.respondRedirect("http://${urlInfo.originalUrl}")
             } else {
                 call.respond(HttpStatusCode.NotFound, "URL Not Found")
             }
         }
     }
+}
+
+fun getClicksFromRedisTimeSeries(
+    urlId: Long,
+    period: Period,
+): Map<String, Int> {
+    val jedis = jedisPool.resource
+    val key = "clicks:url:$urlId"
+    val aggregationType = "COUNT"
+    val bucket = period.timeBucketSeconds
+
+    val now = Clock.System.now()
+    val endTime = now.toEpochMilliseconds()
+    val startTime =
+        when (period) {
+            Period.MINUTE -> now.minus(1, DateTimeUnit.MINUTE).toEpochMilliseconds()
+            Period.HOUR -> now.minus(1, DateTimeUnit.HOUR).toEpochMilliseconds()
+            Period.DAY -> now.minus(1, DateTimeUnit.DAY, TimeZone.UTC).toEpochMilliseconds()
+            Period.MONTH -> now.minus(1, DateTimeUnit.MONTH, TimeZone.UTC).toEpochMilliseconds()
+            Period.YEAR -> now.minus(1, DateTimeUnit.YEAR, TimeZone.UTC).toEpochMilliseconds()
+        }
+
+    return try {
+        val response =
+            jedis.sendCommand(
+                TimeSeriesCommand.RANGE,
+                key,
+                startTime.toString(),
+                endTime.toString(),
+                "AGGREGATION",
+                aggregationType,
+                bucket.toString(),
+            )
+
+        // Convert the response to a more usable format
+        val result =
+            (response as List<List<Any>>).associate { dataPoint ->
+                val rawTimestamp = dataPoint[0] as Long
+                val count = String(dataPoint[1] as ByteArray).toLong().toInt()
+                val dateTime = kotlinx.datetime.Instant.fromEpochMilliseconds(rawTimestamp).toLocalDateTime(TimeZone.UTC)
+                val formatter = SimpleDateFormat(period.dateFormat, Locale.US)
+                rawTimestamp.toString() to count
+            }
+
+        result
+    } catch (e: Exception) {
+        println("Error while fetching data from Redis: ${e.message}")
+        e.printStackTrace()
+        emptyMap()
+    } finally {
+        jedis.close()
+    }
+}
+
+fun recordClick(urlId: Long) {
+    val jedis = jedisPool.resource
+    val key = "clicks:url:$urlId"
+    jedis.sendCommand(TimeSeriesCommand.ADD, key, "*", "1")
+    jedis.close()
 }
 
 private fun loadJWTKey(): Algorithm {

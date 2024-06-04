@@ -15,6 +15,7 @@ compose = "1.6.10-beta03"
 compose-plugin = "1.6.10-rc02"
 compose-ui-tooling = "1.6.7"
 exposed = "0.36.2"
+jedis = "5.1.3" # MIT https://github.com/redis/jedis/releases
 junit = "4.13.2"
 kotlin = "2.0.0-RC2"
 kotlin-serialization = "1.6.3"
@@ -43,6 +44,7 @@ compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview"
 exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed" }
 exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed" }
 exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed" }
+jedis = { module = "redis.clients:jedis", version.ref = "jedis" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

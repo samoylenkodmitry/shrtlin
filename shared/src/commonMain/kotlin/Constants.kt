@@ -33,4 +33,8 @@ object Endpoints {
     fun removeUrl(request: RemoveUrlRequest? = null) = EndpointWithArg(request, RemoveUrlRequest::class, "/url/remove", Boolean::class)
 
     fun updateNick(request: UpdateNickRequest? = null) = EndpointWithArg(request, UpdateNickRequest::class, "/user/nick", Boolean::class)
+
+    fun getClicks(req: GetClicksRequest? = null) = EndpointWithArg(req, GetClicksRequest::class, "/url/clicks", UrlStats::class)
+
+    fun getAllClicks(req: GetClicksRequest? = null) = EndpointWithArg(req, GetClicksRequest::class, "/url/clicks", UrlStats::class)
 }

@@ -44,6 +44,15 @@ services:
       - app-tier
       - proxy-tier
 
+redis:
+  image: redislabs/redistimeseries:latest
+  container_name: redis
+  restart: unless-stopped
+  volumes:
+    - redis_data:/data
+  networks:
+    - app-tier
+
 networks:
   app-tier:
   proxy-tier:
@@ -51,6 +60,7 @@ networks:
 
 volumes:
   postgres_data:
+  redis_data:
 
 secrets:
   db_username:

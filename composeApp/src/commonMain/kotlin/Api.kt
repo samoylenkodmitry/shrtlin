@@ -157,4 +157,9 @@ object Api {
                 AppGraph.auth.tryEmit(AuthState.Authenticated(auth))
             }
         }
+
+    suspend fun getClicks(
+        urlId: Long,
+        period: Period,
+    ): UrlStats = requestsClient doPost Endpoints.getClicks(GetClicksRequest(urlId, period))
 }

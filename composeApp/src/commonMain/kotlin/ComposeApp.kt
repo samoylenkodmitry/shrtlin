@@ -20,14 +20,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -190,6 +189,19 @@ object Repository {
             } catch (e: Exception) {
                 e.message ?: "Error $e"
                 false
+            }
+        }
+
+    suspend fun getClicks(
+        urlId: Long,
+        period: Period,
+    ): UrlStats? =
+        withContext(Dispatchers.Default) {
+            try {
+                Api.getClicks(urlId, period)
+            } catch (e: Exception) {
+                e.message ?: "Error $e"
+                null
             }
         }
 }
@@ -700,39 +712,39 @@ private fun MainScreen() {
 @Composable
 private fun BoxScope.CardScreen(info: UrlInfo) {
     val scope = rememberCoroutineScope()
-    // back button
+    var selectedPeriod by remember { mutableStateOf(Period.DAY) }
+    var clicksData by remember { mutableStateOf<UrlStats?>(null) }
+
+    // Fetch clicks data based on selected period
+    LaunchedEffect(info.id, selectedPeriod) {
+        clicksData = Repository.getClicks(info.id, selectedPeriod)
+    }
+
+    // Back button
     IconButton(
         onClick = { Navigator.main() },
         modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
     ) {
         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
     }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.align(Alignment.Center),
     ) {
         SelectionContainer {
-            Text(
-                text = AnnotatedString("Original URL: ${info.originalUrl}"),
-            )
+            Text(text = AnnotatedString("Original URL: ${info.originalUrl}"))
         }
         Spacer(modifier = Modifier.height(8.dp))
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = AnnotatedString("Short URL: "),
-                style = TextStyle(color = Color.Gray),
-            )
+            Text(text = AnnotatedString("Short URL: "), style = TextStyle(color = Color.Gray))
             ClickableText(
                 text = AnnotatedString(info.shortUrl),
                 onClick = { scope.launch { Repository.openUrl(info.shortUrl) } },
-                style =
-                    TextStyle(
-                        color = Color.Blue,
-                        textDecoration = TextDecoration.Underline,
-                    ),
+                style = TextStyle(color = Color.Blue, textDecoration = TextDecoration.Underline),
             )
-            Spacer(modifier = Modifier.width(8.dp)) // Add space between text and button
+            Spacer(modifier = Modifier.width(8.dp))
             ButtonCopyToClipboard(info.shortUrl)
             ButtonDelete(onClick = {
                 scope.launch {
@@ -745,21 +757,113 @@ private fun BoxScope.CardScreen(info: UrlInfo) {
             })
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = AnnotatedString("Comment: ${info.comment}"),
-        )
+        Text(text = AnnotatedString("Comment: ${info.comment}"))
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = AnnotatedString("User ID: ${info.userId}"),
-        )
+        Text(text = AnnotatedString("User ID: ${info.userId}"))
         Spacer(modifier = Modifier.height(8.dp))
-        val createdAt =
-            Instant.fromEpochMilliseconds(info.timestamp)
-                .toLocalDateTime(TimeZone.currentSystemDefault())
-        Text(
-            text = AnnotatedString("Created at: ${createdAt.date} ${createdAt.time}"),
-        )
+        val createdAt = Instant.fromEpochMilliseconds(info.timestamp).toLocalDateTime(TimeZone.currentSystemDefault())
+        Text(text = AnnotatedString("Created at: ${createdAt.date} ${createdAt.time}"))
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Period selection buttons
+        Row {
+            Button(onClick = { selectedPeriod = Period.MINUTE }, modifier = Modifier.weight(1f)) {
+                Text("Minute")
+            }
+            Button(onClick = { selectedPeriod = Period.HOUR }, modifier = Modifier.weight(1f)) {
+                Text("Hour")
+            }
+            Button(onClick = { selectedPeriod = Period.DAY }, modifier = Modifier.weight(1f)) {
+                Text("Day")
+            }
+            Button(onClick = { selectedPeriod = Period.MONTH }, modifier = Modifier.weight(1f)) {
+                Text("Month")
+            }
+            Button(onClick = { selectedPeriod = Period.YEAR }, modifier = Modifier.weight(1f)) {
+                Text("Year")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Display chart (using a simple line chart for now)
+        clicksData?.let {
+            SimpleLineChart(it)
+        }
     }
+}
+
+@Composable
+fun SimpleLineChart(urlStats: UrlStats) {
+    val maxClicks = urlStats.clickCounts.maxOrNull() ?: 0
+    val yScale = if (maxClicks > 0) 200f / maxClicks else 1f
+
+    val textMeasurer = rememberTextMeasurer()
+    val justText = true
+    if (justText) {
+        LazyColumn {
+            urlStats.clicks.forEach { (date, clicks) ->
+                // header
+                item {
+                    Row {
+                        Text(
+                            text = "Date",
+                            modifier = Modifier.padding(start = 10.dp),
+                        )
+                        Text(
+                            text = "Clicks",
+                            modifier = Modifier.padding(start = 10.dp),
+                        )
+                    }
+                }
+
+                item {
+                    Row {
+                        Text(
+                            text = timestampToDate(date.toLong()),
+                            modifier = Modifier.padding(start = 10.dp),
+                        )
+                        Text(
+                            text = clicks.toString(),
+                            modifier = Modifier.padding(start = 10.dp),
+                        )
+                    }
+                }
+            }
+        }
+        return
+    }
+    Canvas(modifier = Modifier.fillMaxWidth().height(200.dp)) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        val barWidth = canvasWidth / urlStats.dates.size
+
+        urlStats.clickCounts.forEachIndexed { index, clickCount ->
+            val barHeight = clickCount * yScale
+            val left = index * barWidth
+            drawRect(
+                color = Color.Blue,
+                topLeft = Offset(left, canvasHeight - barHeight),
+                size = Size(barWidth, barHeight),
+            )
+        }
+
+        urlStats.dates.forEachIndexed { index, date ->
+            val x = index * barWidth + barWidth / 2
+            drawText(
+                textMeasurer = textMeasurer,
+                text = date,
+                topLeft = Offset(x, canvasHeight),
+            )
+        }
+    }
+}
+
+private fun timestampToDate(date: Long): String {
+    val instant = Instant.fromEpochMilliseconds(date)
+    val localDateTime = instant.toLocalDateTime(TimeZone.currentSystemDefault())
+    return "${localDateTime.date} ${localDateTime.time}"
 }
 
 @Composable

@@ -48,3 +48,20 @@ data class RemoveUrlRequest(val id: Long)
 
 @Serializable
 data class UpdateNickRequest(val nick: String)
+
+enum class Period(val aggregation: String, val timeBucketSeconds: Long, val dateFormat: String) {
+    MINUTE("sum", 60, "yyyy-MM-dd HH:mm"),
+    HOUR("sum", 3600, "yyyy-MM-dd HH"),
+    DAY("sum", 86400, "yyyy-MM-dd"),
+    MONTH("sum", 2592000, "yyyy-MM"),
+    YEAR("sum", 31536000, "yyyy"),
+}
+
+@Serializable
+data class GetClicksRequest(val urlId: Long, val period: Period)
+
+@Serializable
+data class UrlStats(val clicks: Map<String, Int> = emptyMap()) {
+    val dates by lazy { clicks.keys.toList() }
+    val clickCounts by lazy { clicks.values.toList() }
+}

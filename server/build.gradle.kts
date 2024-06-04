@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.bundles.exposed)
     implementation(libs.bundles.ktor)
     implementation(libs.bundles.logging)
+    implementation(libs.jedis)
     implementation(libs.kotlinx.datetime)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.ktor.server.auth)
