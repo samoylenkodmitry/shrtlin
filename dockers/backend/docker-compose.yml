@@ -44,14 +44,14 @@ services:
       - app-tier
       - proxy-tier
 
-redis:
-  image: redislabs/redistimeseries:latest
-  container_name: redis
-  restart: unless-stopped
-  volumes:
-    - redis_data:/data
-  networks:
-    - app-tier
+  redis:
+    image: redislabs/redistimeseries:latest
+    container_name: redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-tier
 
 networks:
   app-tier:
