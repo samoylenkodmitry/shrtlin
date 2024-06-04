@@ -3,7 +3,7 @@
 )
 [![GitHub License](https://img.shields.io/github/license/samoylenkodmitry/shrtlin)](https://github.com/samoylenkodmitry/shrtlin/blob/main/LICENSE)
 [![GitHub top language](https://img.shields.io/github/languages/top/samoylenkodmitry/shrtlin)](https://github.com/search?q=repo%3Asamoylenkodmitry%2Fshrtlin++language%3AKotlin&type=code)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)](https://shrtl.in)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)](https://shrtl.in/O1)
 
 
 
