@@ -7,7 +7,7 @@
 
 
 
-[![shrtlin](https://raw.githubusercontent.com/samoylenkodmitry/shrtlin/main/logo.svg)](https://shrtl.in)
+[![shrtlin](https://raw.githubusercontent.com/samoylenkodmitry/shrtlin/main/logo.svg)](https://shrtl.in/6)
 
 
 # shrtlin
