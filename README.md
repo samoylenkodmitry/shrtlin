@@ -1,9 +1,8 @@
-[![Build and Create Release](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml/badge.svg)](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml)
-[![GitHub Release](https://img.shields.io/github/v/release/samoylenkodmitry/shrtlin?include_prereleases)](https://github.com/samoylenkodmitry/shrtlin/releases/latest
-)
-[![GitHub License](https://img.shields.io/github/license/samoylenkodmitry/shrtlin)](https://github.com/samoylenkodmitry/shrtlin/blob/main/LICENSE)
-[![GitHub top language](https://img.shields.io/github/languages/top/samoylenkodmitry/shrtlin)](https://github.com/search?q=repo%3Asamoylenkodmitry%2Fshrtlin++language%3AKotlin&type=code)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)](https://shrtl.in/O1)
+[![Build and Create Release](https://github.com/samoylenkodmitry/shrtlin/actions/workflows/build.yml/badge.svg)](https://shrtl.in/T1)
+[![GitHub Release](https://img.shields.io/github/v/release/samoylenkodmitry/shrtlin?include_prereleases)](https://shrtl.in/S1)
+[![GitHub License](https://img.shields.io/github/license/samoylenkodmitry/shrtlin)](https://shrtl.in/R1)
+[![GitHub top language](https://img.shields.io/github/languages/top/samoylenkodmitry/shrtlin)](https://shrtl.in/Q1)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)](https://shrtl.in/P1)
 
 
 
