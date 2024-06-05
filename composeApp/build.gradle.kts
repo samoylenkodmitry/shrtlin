@@ -65,6 +65,7 @@ kotlin {
             implementation(compose.material)
             implementation(compose.runtime)
             implementation(compose.ui)
+            implementation(libs.haze)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization)

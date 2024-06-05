@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.*
@@ -32,6 +33,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import dev.chrisbanes.haze.HazeState
+import dev.chrisbanes.haze.HazeStyle
+import dev.chrisbanes.haze.haze
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
@@ -338,135 +342,151 @@ fun BoxScope.ErrorScreen(message: String) {
 
 @Composable
 fun BoxScope.UserProfileScreen() {
-    val authState = AppGraph.auth.collectAsState(AuthState.Unauthenticated)
-    val scope = rememberCoroutineScope()
-
-    IconButton(
-        onClick = { Navigator.main() },
-        modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
+    val hazeState = remember { HazeState() }
+    Box(
+        modifier =
+            Modifier.fillMaxSize().haze(
+                hazeState,
+                HazeStyle(tint = Color.White.copy(alpha = 0.4f), blurRadius = 20.dp, noiseFactor = -1f),
+            ).shaderBackground(ICE_EFFECT, 0.2f),
     ) {
-        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-    }
+        val authState = AppGraph.auth.collectAsState(AuthState.Unauthenticated)
+        val scope = rememberCoroutineScope()
 
-    // Column for user profile info
-    Column(
-        modifier = Modifier.align(Alignment.Center).padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        // Placeholder for a circle (e.g., user avatar)
-        Box(modifier = Modifier.size(100.dp).background(Color.Gray, shape = CircleShape)) {
-            // User icon
-            Icon(
-                Theme.Icons.User,
-                contentDescription = "User",
-                modifier = Modifier.align(Alignment.Center),
-            )
+        IconButton(
+            onClick = { Navigator.main() },
+            modifier = Modifier.align(Alignment.TopStart).padding(16.dp).background(Color.White.copy(alpha = 0.8f), shape = CircleShape),
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        // Column for user profile info
+        Column(
+            modifier =
+                Modifier.align(
+                    Alignment.Center,
+                ).padding(16.dp).background(Color.White.copy(alpha = 0.8f), shape = RoundedCornerShape(16.dp)),
+            // .hazeChild(
+            //    hazeState,
+            //    shape = RoundedCornerShape(16.dp),
+            // )
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // Placeholder for a circle (e.g., user avatar)
+            Box(modifier = Modifier.size(100.dp).background(Color.Gray, shape = CircleShape)) {
+                // User icon
+                Icon(
+                    Theme.Icons.User,
+                    contentDescription = "User",
+                    modifier = Modifier.align(Alignment.Center),
+                )
+            }
 
-        // User ID
-        when (val state = authState.value) {
-            is AuthState.Authenticated -> {
-                Column {
-                    val userId = state.auth.user.id
-                    val nick = state.auth.user.nick
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        val editMode = remember { mutableStateOf(false) }
-                        Text("Nick:")
-                        Box {
-                            if (editMode.value) {
-                                var newNick by remember { mutableStateOf(nick) }
-                                TextField(
-                                    value = newNick,
-                                    onValueChange = { newNick = it },
-                                    label = { Text("New nick") },
-                                )
-                                IconButton(
-                                    onClick = {
-                                        scope.launch {
-                                            if (Repository.updateNick(newNick)) {
-                                                AppGraph.notifications.tryEmit(Notification.Info("Nick updated"))
-                                                editMode.value = false
-                                            } else {
-                                                AppGraph.notifications.tryEmit(Notification.Error("Could not update nick"))
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // User ID
+            when (val state = authState.value) {
+                is AuthState.Authenticated -> {
+                    Column {
+                        val userId = state.auth.user.id
+                        val nick = state.auth.user.nick
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            val editMode = remember { mutableStateOf(false) }
+                            Text("Nick:")
+                            Box {
+                                if (editMode.value) {
+                                    var newNick by remember { mutableStateOf(nick) }
+                                    TextField(
+                                        value = newNick,
+                                        onValueChange = { newNick = it },
+                                        label = { Text("New nick") },
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                if (Repository.updateNick(newNick)) {
+                                                    AppGraph.notifications.tryEmit(Notification.Info("Nick updated"))
+                                                    editMode.value = false
+                                                } else {
+                                                    AppGraph.notifications.tryEmit(Notification.Error("Could not update nick"))
+                                                }
                                             }
-                                        }
-                                    },
-                                    modifier = Modifier.align(Alignment.CenterEnd),
-                                ) {
-                                    Icon(Icons.Filled.Done, contentDescription = "Edit nick")
+                                        },
+                                        modifier = Modifier.align(Alignment.CenterEnd),
+                                    ) {
+                                        Icon(Icons.Filled.Done, contentDescription = "Edit nick")
+                                    }
+                                } else {
+                                    Text(nick)
                                 }
-                            } else {
-                                Text(nick)
+                            }
+                            // Button to edit nick
+                            IconButton(onClick = { editMode.value = !editMode.value }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "Edit nick")
                             }
                         }
-                        // Button to edit nick
-                        IconButton(onClick = { editMode.value = !editMode.value }) {
-                            Icon(Icons.Filled.Edit, contentDescription = "Edit nick")
-                        }
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text("ID: ${state.auth.refreshToken.take(8)}...${state.auth.refreshToken.takeLast(8)}")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        val clipboardManager = LocalClipboardManager.current
-                        IconButton(onClick = {
-                            clipboardManager.setText(AnnotatedString(state.auth.refreshToken))
-                            AppGraph.notifications.tryEmit(Notification.Info("ID copied to clipboard"))
-                        }) {
-                            Icon(Theme.Icons.Clipboard, contentDescription = "Copy ID to clipboard")
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("ID: ${state.auth.refreshToken.take(8)}...${state.auth.refreshToken.takeLast(8)}")
+                            Spacer(modifier = Modifier.width(8.dp))
+                            val clipboardManager = LocalClipboardManager.current
+                            IconButton(onClick = {
+                                clipboardManager.setText(AnnotatedString(state.auth.refreshToken))
+                                AppGraph.notifications.tryEmit(Notification.Info("ID copied to clipboard"))
+                            }) {
+                                Icon(Theme.Icons.Clipboard, contentDescription = "Copy ID to clipboard")
+                            }
                         }
                     }
                 }
-            }
 
-            AuthState.AuthError -> {
-                Text("Error")
-            }
+                AuthState.AuthError -> {
+                    Text("Error")
+                }
 
-            AuthState.Authenticating -> {
-                Text("Authenticating")
-            }
+                AuthState.Authenticating -> {
+                    Text("Authenticating")
+                }
 
-            AuthState.Unauthenticated -> {
-                Text("Unauthenticated")
+                AuthState.Unauthenticated -> {
+                    Text("Unauthenticated")
+                }
             }
-        }
-        Row(
-            modifier =
-                Modifier
-                    .padding(36.dp),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Button(onClick = { Navigator.login() }) {
-                Text("Login by ID")
-            }
-
-            val showRemoveButton = remember { mutableStateOf(false) }
-            Column(
+            Row(
                 modifier =
                     Modifier
-                        .graphicsLayer {
-                            rotationZ = if (showRemoveButton.value) -20f else 0f
-                            shadowElevation = if (showRemoveButton.value) 4f else 0f
-                        }
-                        .padding(top = if (showRemoveButton.value) 20.dp else 0.dp),
+                        .padding(36.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                Button(
-                    onClick = { showRemoveButton.value = true },
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                ) {
-                    Text("New identity")
+                Button(onClick = { Navigator.login() }) {
+                    Text("Login by ID")
                 }
-                AnimatedVisibility(showRemoveButton.value) {
-                    Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp)) {
-                        Text("Are you sure?", modifier = Modifier.align(Alignment.CenterHorizontally))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Button(onClick = { scope.launch { Repository.logout() } }) {
-                                Text("Yes", color = Color.Red)
+
+                val showRemoveButton = remember { mutableStateOf(false) }
+                Column(
+                    modifier =
+                        Modifier
+                            .graphicsLayer {
+                                rotationZ = if (showRemoveButton.value) -20f else 0f
+                                shadowElevation = if (showRemoveButton.value) 4f else 0f
                             }
-                            Button(onClick = { showRemoveButton.value = false }) {
-                                Text("No", color = Color.Green)
+                            .padding(top = if (showRemoveButton.value) 20.dp else 0.dp),
+                ) {
+                    Button(
+                        onClick = { showRemoveButton.value = true },
+                        modifier = Modifier.align(Alignment.CenterHorizontally),
+                    ) {
+                        Text("New identity")
+                    }
+                    AnimatedVisibility(showRemoveButton.value) {
+                        Column(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 5.dp)) {
+                            Text("Are you sure?", modifier = Modifier.align(Alignment.CenterHorizontally))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Button(onClick = { scope.launch { Repository.logout() } }) {
+                                    Text("Yes", color = Color.Red)
+                                }
+                                Button(onClick = { showRemoveButton.value = false }) {
+                                    Text("No", color = Color.Green)
+                                }
                             }
                         }
                     }
