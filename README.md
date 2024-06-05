@@ -23,7 +23,7 @@ Powered by a Ktor backend and PostgreSQL database.
 ## Features
 
 * **Easy URL shortening:** Quickly shorten URLs using intuitive interfaces on Android, iOS, Web, and Desktop.
-* **Seamless Authentication:** Securely authenticate using JWT tokens and Proof of Work.
+* **Seamless Authentication:** Securely authenticate using JWT tokens and Proof of Work, no email, respects your privacy.
 * **URL Management:** View, edit, and delete your shortened URLs.
 * **Cross-platform compatibility:** Enjoy a consistent experience across Android, iOS, Web, and Desktop.
 * **PostgreSQL database:**  Reliable and scalable data storage.
