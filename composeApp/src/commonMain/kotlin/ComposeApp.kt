@@ -34,7 +34,6 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import dev.chrisbanes.haze.HazeState
-import dev.chrisbanes.haze.HazeStyle
 import dev.chrisbanes.haze.haze
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers
@@ -347,15 +346,16 @@ fun BoxScope.UserProfileScreen() {
         modifier =
             Modifier.fillMaxSize().haze(
                 hazeState,
-                HazeStyle(tint = Color.White.copy(alpha = 0.4f), blurRadius = 20.dp, noiseFactor = -1f),
-            ).shaderBackground(ICE_EFFECT, 0.2f),
+            ).shaderBackground(ICE_EFFECT, 0.03f),
     ) {
         val authState = AppGraph.auth.collectAsState(AuthState.Unauthenticated)
         val scope = rememberCoroutineScope()
 
         IconButton(
             onClick = { Navigator.main() },
-            modifier = Modifier.align(Alignment.TopStart).padding(16.dp).background(Color.White.copy(alpha = 0.8f), shape = CircleShape),
+            modifier =
+                Modifier.align(Alignment.TopStart).padding(16.dp)
+                    .background(Color.White.copy(alpha = 0.8f), shape = CircleShape),
         ) {
             Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
@@ -373,7 +373,7 @@ fun BoxScope.UserProfileScreen() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Placeholder for a circle (e.g., user avatar)
-            Box(modifier = Modifier.size(100.dp).background(Color.Gray, shape = CircleShape)) {
+            Box(modifier = Modifier.padding(16.dp).size(100.dp).background(Color.Gray, shape = CircleShape)) {
                 // User icon
                 Icon(
                     Theme.Icons.User,
@@ -498,49 +498,63 @@ fun BoxScope.UserProfileScreen() {
 
 @Composable
 fun BoxScope.LoginScreen() {
-    // Back button
-    IconButton(
-        onClick = { Navigator.main() },
-        modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
+    val hazeState = remember { HazeState() }
+    Box(
+        modifier =
+            Modifier.fillMaxSize().haze(
+                hazeState,
+            ).shaderBackground(ICE_EFFECT, 0.1f),
     ) {
-        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-    }
-    Column(modifier = Modifier.align(Alignment.Center)) {
-        // Text field for user ID
-        var userId by remember { mutableStateOf("") }
-        Box {
-            TextField(
-                value = userId,
-                onValueChange = { userId = it },
-                label = { Text("User ID") },
-            )
-            val clipboardManager = LocalClipboardManager.current
-            val scope = rememberCoroutineScope()
-            // Paste button
-            IconButton(
-                onClick = {
-                    scope.launch {
-                        clipboardManager.getText()?.let { userId = it.text }
-                    }
-                },
-                modifier = Modifier.align(Alignment.CenterEnd),
-            ) {
-                Icon(Theme.Icons.Clipboard, contentDescription = "Paste")
-            }
+        // Back button
+        IconButton(
+            onClick = { Navigator.main() },
+            modifier =
+                Modifier.align(Alignment.TopStart).padding(16.dp)
+                    .background(Color.White.copy(alpha = 0.8f), shape = CircleShape),
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
-        // Button to login
-        val scope = rememberCoroutineScope()
-        Button(onClick = {
-            scope.launch {
-                if (!Repository.doLogin(userId)) {
-                    AppGraph.notifications.tryEmit(Notification.Error("Could not login"))
-                } else {
-                    AppGraph.notifications.tryEmit(Notification.Info("Logged in"))
-                    Navigator.userProfile()
+        Column(
+            modifier =
+                Modifier.align(Alignment.Center).padding(16.dp)
+                    .background(Color.White.copy(alpha = 0.8f), shape = RoundedCornerShape(16.dp)),
+        ) {
+            // Text field for user ID
+            var userId by remember { mutableStateOf("") }
+            Box {
+                TextField(
+                    value = userId,
+                    onValueChange = { userId = it },
+                    label = { Text("User ID") },
+                )
+                val clipboardManager = LocalClipboardManager.current
+                val scope = rememberCoroutineScope()
+                // Paste button
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            clipboardManager.getText()?.let { userId = it.text }
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                ) {
+                    Icon(Theme.Icons.Clipboard, contentDescription = "Paste")
                 }
             }
-        }, modifier = Modifier.padding(36.dp).align(Alignment.CenterHorizontally)) {
-            Text("Login")
+            // Button to login
+            val scope = rememberCoroutineScope()
+            Button(onClick = {
+                scope.launch {
+                    if (!Repository.doLogin(userId)) {
+                        AppGraph.notifications.tryEmit(Notification.Error("Could not login"))
+                    } else {
+                        AppGraph.notifications.tryEmit(Notification.Info("Logged in"))
+                        Navigator.userProfile()
+                    }
+                }
+            }, modifier = Modifier.padding(36.dp).align(Alignment.CenterHorizontally)) {
+                Text("Login")
+            }
         }
     }
 }
