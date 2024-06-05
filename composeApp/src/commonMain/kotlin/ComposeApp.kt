@@ -40,6 +40,8 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import shader.ICE_EFFECT
+import shader.shaderBackground
 
 sealed interface Screen {
     data object Splash : Screen
@@ -525,35 +527,15 @@ fun BoxScope.LoginScreen() {
 
 @Composable
 private fun SplashScreen() {
-    val hueAnimation = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        while (true) {
-            hueAnimation.animateTo(
-                targetValue = if (hueAnimation.value > 0) 0f else 360f,
-                animationSpec =
-                    infiniteRepeatable(
-                        animation = tween(durationMillis = 20000),
-                    ),
-            )
-        }
-    }
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .background(
-                    color =
-                        Color.hsl(
-                            hue = hueAnimation.value,
-                            saturation = 0.1f,
-                            lightness = 0.7f,
-                        ),
-                )
+                .shaderBackground(ICE_EFFECT, 0.2f)
                 .padding(16.dp),
     ) {
         Column(modifier = Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
             Logo()
-            CircularProgressIndicator()
         }
     }
 }
