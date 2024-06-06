@@ -13,7 +13,7 @@ import org.jetbrains.skia.RuntimeShaderBuilder
 
 interface ShaderEffect {
     val supported: Boolean
-    val ready: Boolean
+    val ready: State<Boolean>
 
     fun updateUniforms(
         time: Float,
@@ -29,7 +29,7 @@ expect fun build(shaderCode: String): ShaderEffect
 class NonAndroidShaderEffect(shaderCode: String) : ShaderEffect {
     private val shaderBuilder = RuntimeShaderBuilder(org.jetbrains.skia.RuntimeEffect.makeForShader(shaderCode))
     override val supported: Boolean = true
-    override var ready: Boolean = false
+    override var ready: MutableState<Boolean> = mutableStateOf(false)
 
     override fun updateUniforms(
         time: Float,
@@ -38,35 +38,35 @@ class NonAndroidShaderEffect(shaderCode: String) : ShaderEffect {
     ) {
         shaderBuilder.uniform("iResolution", width, height, width / height)
         shaderBuilder.uniform("iTime", time)
-        ready = width > 0 && height > 0
+        ready.value = width > 0 && height > 0
     }
 
     override fun brush(): Brush = ShaderBrush(shaderBuilder.makeShader())
 }
 
-@Composable
 fun Modifier.shaderBackground(
     shaderCode: String,
-    speed: Float = 1f,
+    speed: Float,
 ): Modifier =
     composed {
         val shaderEffect = remember(shaderCode) { build(shaderCode) }
         if (!shaderEffect.supported) return@composed Modifier
 
-        val time by produceState(0f) {
-            while (true) {
-                withInfiniteAnimationFrameMillis {
-                    value = (it / 16.6f) / 10f
+        val time =
+            produceState(0f) {
+                while (true) {
+                    withInfiniteAnimationFrameMillis {
+                        value = (it / 16.6f) / 10f
+                    }
                 }
             }
-        }
         var size by remember { mutableStateOf(Size(0f, 0f)) }
-        shaderEffect.updateUniforms(time * speed, size.width, size.height)
+        shaderEffect.updateUniforms(time.value * speed, size.width, size.height)
 
         Modifier.onGloballyPositioned {
             size = Size(it.size.width.toFloat(), it.size.height.toFloat())
         }.drawBehind {
-            if (shaderEffect.ready) {
+            if (shaderEffect.ready.value) {
                 drawRect(brush = shaderEffect.brush())
             }
         }
