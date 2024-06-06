@@ -5,6 +5,19 @@
     <title>shrtlin</title>
     <script type="application/javascript" src="skiko.js"></script>
     <script type="application/javascript" src="composeApp.js"></script>
+    <script>
+        // https://slack-chats.kotlinlang.org/t/2224952/compose-for-web-on-canvas-skia-wasm-i-have-a-simple-function#59978a9c-356f-4e08-a5c9-9a096a050ddb
+        // Sets the viewport to the correct size for mobile devices
+        window.addEventListener("load", function(){ onLoad() } );
+        function onLoad() {
+           window.setTimeout(function() {
+              const meta = document.createElement('meta');
+              meta.name = "viewport";
+              meta.content = "width=" + (window.screen.width * window.devicePixelRatio) / 2 + ", initial-scale=1";
+              document.head.appendChild(meta);
+           }, 0);
+        }
+    </script>
 </head>
 <body>
 <canvas id="ComposeTarget"></canvas>

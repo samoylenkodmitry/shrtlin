@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -45,8 +46,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.compose.ui.tooling.preview.Preview
-import shader.ICE_EFFECT
-import shader.shaderBackground
+import shader.*
 
 sealed interface Screen {
     data object Splash : Screen
@@ -302,28 +302,46 @@ fun NotificationPopup() {
         }
     }
     notification?.let { n ->
-        Snackbar(
-            modifier = Modifier.padding(16.dp),
-            action = {
-                Button(onClick = { notification = null }) {
-                    Text("Dismiss")
-                }
-            },
-        ) {
-            when (n) {
-                is Notification.Info ->
-                    Text(
-                        n.message,
-                        modifier = Modifier.padding(8.dp),
-                        color = Color.hsl(120f, 0.7f, 0.9f),
-                    )
+        Box(modifier = Modifier.fillMaxSize()) {
+            Box(
+                modifier =
+                    Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .shaderBackground(
+                            listOf(
+                                GLOSSY_GRADIENTS_EFFECT,
+                                INK_FLOW_EFFECT,
+                                BLACK_CHERRY_COSMOS_2_PLUS_EFFECT,
+                                ICE_EFFECT,
+                            ).random(),
+                            0.5f,
+                        )
+                        .width(300.dp).height(100.dp).align(Alignment.BottomEnd),
+            ) {
+                Snackbar(
+                    modifier = Modifier.padding(16.dp),
+                    action = {
+                        Button(onClick = { notification = null }) {
+                            Text("Dismiss")
+                        }
+                    },
+                ) {
+                    when (n) {
+                        is Notification.Info ->
+                            Text(
+                                n.message,
+                                modifier = Modifier.padding(8.dp),
+                                color = Color.hsl(120f, 0.7f, 0.9f).copy(alpha = 0.5f),
+                            )
 
-                is Notification.Error ->
-                    Text(
-                        n.message,
-                        modifier = Modifier.padding(8.dp),
-                        color = Color.hsl(0f, 0.7f, 0.9f),
-                    )
+                        is Notification.Error ->
+                            Text(
+                                n.message,
+                                modifier = Modifier.padding(8.dp),
+                                color = Color.hsl(0f, 0.7f, 0.9f).copy(alpha = 0.5f),
+                            )
+                    }
+                }
             }
         }
     }
@@ -331,7 +349,11 @@ fun NotificationPopup() {
 
 @Composable
 fun BoxScope.ErrorScreen(message: String) {
-    Column(modifier = Modifier.align(Alignment.Center)) {
+    Column(
+        modifier =
+            Modifier.align(Alignment.Center)
+                .shaderBackground(BLACK_CHERRY_COSMOS_2_PLUS_EFFECT, 0.05f),
+    ) {
         Text("Error: $message")
         Button(onClick = {
             Navigator.main()
@@ -389,7 +411,11 @@ fun BoxScope.UserProfileScreen() {
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 // Placeholder for a circle (e.g., user avatar)
-                Box(modifier = Modifier.padding(16.dp).size(100.dp).background(Color.Gray.copy(0.2f), shape = CircleShape)) {
+                Box(
+                    modifier =
+                        Modifier.padding(16.dp).size(100.dp)
+                            .background(Color.Gray.copy(0.2f), shape = CircleShape),
+                ) {
                     // User icon
                     Icon(
                         Theme.Icons.User,
