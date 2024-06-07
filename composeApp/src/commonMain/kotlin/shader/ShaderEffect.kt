@@ -56,12 +56,12 @@ fun Modifier.shaderBackground(
             produceState(0f) {
                 while (true) {
                     withInfiniteAnimationFrameMillis {
-                        value = (it / 16.6f) / 10f
+                        value = speed * (it / 16.6f) / 10f
                     }
                 }
             }
         var size by remember { mutableStateOf(Size(0f, 0f)) }
-        shaderEffect.updateUniforms(time.value * speed, size.width, size.height)
+        shaderEffect.updateUniforms(time.value, size.width, size.height)
 
         Modifier.onGloballyPositioned {
             size = Size(it.size.width.toFloat(), it.size.height.toFloat())

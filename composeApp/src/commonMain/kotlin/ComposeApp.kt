@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -314,32 +315,32 @@ fun NotificationPopup() {
                                 BLACK_CHERRY_COSMOS_2_PLUS_EFFECT,
                                 ICE_EFFECT,
                             ).random(),
-                            0.5f,
+                            0.2f,
                         )
                         .width(300.dp).height(100.dp).align(Alignment.BottomEnd),
             ) {
-                Snackbar(
-                    modifier = Modifier.padding(16.dp),
-                    action = {
-                        Button(onClick = { notification = null }) {
-                            Text("Dismiss")
-                        }
-                    },
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).background(Color.Black.copy(alpha = 0.6f), RoundedCornerShape(16.dp)),
                 ) {
-                    when (n) {
-                        is Notification.Info ->
-                            Text(
-                                n.message,
-                                modifier = Modifier.padding(8.dp),
-                                color = Color.hsl(120f, 0.7f, 0.9f).copy(alpha = 0.5f),
-                            )
+                    Box(modifier = Modifier.align(Alignment.CenterVertically).weight(1f).padding(start = 8.dp)) {
+                        when (n) {
+                            is Notification.Info ->
+                                Text(
+                                    n.message,
+                                    modifier = Modifier.padding(8.dp),
+                                    color = Color.White,
+                                )
 
-                        is Notification.Error ->
-                            Text(
-                                n.message,
-                                modifier = Modifier.padding(8.dp),
-                                color = Color.hsl(0f, 0.7f, 0.9f).copy(alpha = 0.5f),
-                            )
+                            is Notification.Error ->
+                                Text(
+                                    n.message,
+                                    modifier = Modifier.padding(8.dp),
+                                    color = Color.White,
+                                )
+                        }
+                    }
+                    IconButton(modifier = Modifier.padding(8.dp), onClick = { notification = null }) {
+                        Icon(Icons.Filled.Done, contentDescription = "Dismiss", tint = Color.White)
                     }
                 }
             }
@@ -650,13 +651,28 @@ private fun MainScreen() {
         userUrls.addAll(urlsResponse.urls)
         totalPages.value = urlsResponse.totalPages
     }
+    val hazeState = remember { HazeState() }
     Box(
         modifier =
             Modifier
-                .fillMaxSize()
-                .padding(top = 16.dp),
+                .fillMaxSize(),
     ) {
-        ButtonUser(Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 20.dp))
+        Box(
+            modifier =
+                Modifier.haze(state = hazeState).fillMaxSize().shaderBackground(ICE_EFFECT, 0.009f),
+        )
+        ButtonUser(
+            Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 20.dp)
+                .hazeChild(
+                    state = hazeState,
+                    shape = CircleShape,
+                    style =
+                        HazeStyle(
+                            blurRadius = 16.dp,
+                            tint = Color.White.copy(alpha = 0.4f),
+                        ),
+                ),
+        )
         Column(
             modifier =
                 Modifier
@@ -683,8 +699,17 @@ private fun MainScreen() {
                 onValueChange = { inputText = it },
                 textStyle = TextStyle(brush = brush),
                 placeholder = { Text("Enter URL here") },
-                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.White),
-                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.textFieldColors(backgroundColor = Color.Transparent),
+                modifier =
+                    Modifier.fillMaxWidth().hazeChild(
+                        state = hazeState,
+                        shape = RoundedCornerShape(16.dp),
+                        style =
+                            HazeStyle(
+                                blurRadius = 16.dp,
+                                tint = Color.White.copy(alpha = 0.4f),
+                            ),
+                    ),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -710,7 +735,10 @@ private fun MainScreen() {
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
+            Box(
+                modifier =
+                    Modifier.align(Alignment.CenterHorizontally),
+            ) {
                 val scrollState = rememberLazyListState()
                 LazyColumn(
                     state = scrollState,
@@ -734,7 +762,15 @@ private fun MainScreen() {
                                 }
                             },
                             modifier =
-                                Modifier
+                                Modifier.hazeChild(
+                                    state = hazeState,
+                                    shape = RoundedCornerShape(16.dp),
+                                    style =
+                                        HazeStyle(
+                                            blurRadius = 16.dp,
+                                            tint = Color.White.copy(alpha = 0.4f),
+                                        ),
+                                )
                                     .animateItemPlacement()
                                     .clickable { Navigator.cardScreen(info) },
                         )
@@ -750,38 +786,6 @@ private fun MainScreen() {
                         Spacer(modifier = Modifier.height(48.dp))
                     }
                 }
-                if (scrollState.canScrollBackward) {
-                    Box(
-                        modifier =
-                            Modifier
-                                .fillMaxWidth()
-                                .align(Alignment.TopCenter)
-                                .height(32.dp)
-                                .background(
-                                    brush =
-                                        Brush.verticalGradient(
-                                            colors = listOf(Color.White, Color.Transparent),
-                                            startY = 0f,
-                                            endY = 32f,
-                                        ),
-                                ),
-                    )
-                }
-                Box(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.BottomCenter)
-                            .height(32.dp)
-                            .background(
-                                brush =
-                                    Brush.verticalGradient(
-                                        colors = listOf(Color.Transparent, Color.White),
-                                        startY = 0f,
-                                        endY = 32f,
-                                    ),
-                            ),
-                )
             }
         }
     }
@@ -798,74 +802,100 @@ private fun BoxScope.CardScreen(info: UrlInfo) {
         clicksData = Repository.getClicks(info.id, selectedPeriod)
     }
 
-    // Back button
-    IconButton(
-        onClick = { Navigator.main() },
-        modifier = Modifier.align(Alignment.TopStart).padding(16.dp),
-    ) {
-        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-    }
-
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = Modifier.align(Alignment.Center),
-    ) {
-        SelectionContainer {
-            Text(text = AnnotatedString("Original URL: ${info.originalUrl}"))
+    val hazeState = remember { HazeState() }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier =
+                Modifier.haze(state = hazeState).fillMaxSize().shaderBackground(ICE_EFFECT, 0.02f),
+        )
+        // Back button
+        IconButton(
+            onClick = { Navigator.main() },
+            modifier =
+                Modifier.padding(16.dp).align(Alignment.TopStart).hazeChild(
+                    state = hazeState,
+                    shape = CircleShape,
+                    style =
+                        HazeStyle(
+                            blurRadius = 16.dp,
+                            tint = Color.White.copy(alpha = 0.4f),
+                        ),
+                ),
+        ) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = AnnotatedString("Short URL: "), style = TextStyle(color = Color.Gray))
-            ClickableText(
-                text = AnnotatedString(info.shortUrl),
-                onClick = { scope.launch { Repository.openUrl(info.shortUrl) } },
-                style = TextStyle(color = Color.Blue, textDecoration = TextDecoration.Underline),
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            ButtonCopyToClipboard(info.shortUrl)
-            ButtonDelete(onClick = {
-                scope.launch {
-                    if (Repository.removeUrl(info.id)) {
-                        AppGraph.notifications.tryEmit(Notification.Info("URL removed"))
-                    } else {
-                        AppGraph.notifications.tryEmit(Notification.Error("Could not remove URL"))
+
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier =
+                Modifier.hazeChild(
+                    state = hazeState,
+                    shape = RoundedCornerShape(16.dp),
+                    style =
+                        HazeStyle(
+                            blurRadius = 16.dp,
+                            tint = Color.White.copy(alpha = 0.4f),
+                        ),
+                ).align(Alignment.Center).padding(16.dp),
+        ) {
+            SelectionContainer {
+                Text(text = AnnotatedString("Original URL: ${info.originalUrl}"))
+            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(text = AnnotatedString("Short URL: "), style = TextStyle(color = Color.Gray))
+                ClickableText(
+                    text = AnnotatedString(info.shortUrl),
+                    onClick = { scope.launch { Repository.openUrl(info.shortUrl) } },
+                    style = TextStyle(color = Color.Blue, textDecoration = TextDecoration.Underline),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                ButtonCopyToClipboard(info.shortUrl)
+                ButtonDelete(onClick = {
+                    scope.launch {
+                        if (Repository.removeUrl(info.id)) {
+                            AppGraph.notifications.tryEmit(Notification.Info("URL removed"))
+                        } else {
+                            AppGraph.notifications.tryEmit(Notification.Error("Could not remove URL"))
+                        }
                     }
+                })
+            }
+            // Spacer(modifier = Modifier.height(8.dp))
+            // Text(text = AnnotatedString("Comment: ${info.comment}")) // todo modify comments
+            Spacer(modifier = Modifier.height(8.dp))
+            val createdAt =
+                Instant.fromEpochMilliseconds(info.timestamp).toLocalDateTime(TimeZone.currentSystemDefault())
+            Text(text = AnnotatedString("Created at: ${createdAt.date} ${createdAt.time}"))
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Period selection buttons
+            Row(modifier = Modifier.padding(16.dp).scale(0.8f).width(500.dp)) {
+                Button(onClick = { selectedPeriod = Period.MINUTE }, modifier = Modifier.weight(1f)) {
+                    Text("Minute")
                 }
-            })
-        }
-        // Spacer(modifier = Modifier.height(8.dp))
-        // Text(text = AnnotatedString("Comment: ${info.comment}")) // todo modify comments
-        Spacer(modifier = Modifier.height(8.dp))
-        val createdAt = Instant.fromEpochMilliseconds(info.timestamp).toLocalDateTime(TimeZone.currentSystemDefault())
-        Text(text = AnnotatedString("Created at: ${createdAt.date} ${createdAt.time}"))
+                Button(onClick = { selectedPeriod = Period.HOUR }, modifier = Modifier.weight(1f)) {
+                    Text("Hour")
+                }
+                Button(onClick = { selectedPeriod = Period.DAY }, modifier = Modifier.weight(1f)) {
+                    Text("Day")
+                }
+                Button(onClick = { selectedPeriod = Period.MONTH }, modifier = Modifier.weight(1f)) {
+                    Text("Month")
+                }
+                Button(onClick = { selectedPeriod = Period.YEAR }, modifier = Modifier.weight(1f)) {
+                    Text("Year")
+                }
+            }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Period selection buttons
-        Row {
-            Button(onClick = { selectedPeriod = Period.MINUTE }, modifier = Modifier.weight(1f)) {
-                Text("Minute")
+            // Display chart (using a simple line chart for now)
+            clicksData?.let {
+                SimpleLineChart(it)
             }
-            Button(onClick = { selectedPeriod = Period.HOUR }, modifier = Modifier.weight(1f)) {
-                Text("Hour")
-            }
-            Button(onClick = { selectedPeriod = Period.DAY }, modifier = Modifier.weight(1f)) {
-                Text("Day")
-            }
-            Button(onClick = { selectedPeriod = Period.MONTH }, modifier = Modifier.weight(1f)) {
-                Text("Month")
-            }
-            Button(onClick = { selectedPeriod = Period.YEAR }, modifier = Modifier.weight(1f)) {
-                Text("Year")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Display chart (using a simple line chart for now)
-        clicksData?.let {
-            SimpleLineChart(it)
         }
     }
 }
@@ -1023,8 +1053,7 @@ fun UrlInfoCard(
     onUrlRemove: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        elevation = 2.dp,
+    Box(
         modifier =
             modifier
                 .fillMaxWidth()
