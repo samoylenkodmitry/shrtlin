@@ -29,6 +29,16 @@ kotlin {
         binaries.executable()
     }
 
+    js(IR) {
+        moduleName = "composeApp"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+            }
+        }
+        binaries.executable()
+    }
+
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -56,6 +66,7 @@ kotlin {
             implementation(libs.androidx.activity.compose)
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.haze)
         }
         commonMain.dependencies {
             // todo implementation(libs.composeIcons.feather)
@@ -65,7 +76,6 @@ kotlin {
             implementation(compose.material)
             implementation(compose.runtime)
             implementation(compose.ui)
-            implementation(libs.haze)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization)
@@ -84,11 +94,18 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.ktor.client.java)
+            implementation(libs.haze)
         }
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+            implementation(libs.haze)
         }
         wasmJsMain.dependencies {
+            implementation(libs.ktor.client.js)
+            implementation(libs.haze)
+        }
+
+        jsMain.dependencies {
             implementation(libs.ktor.client.js)
         }
     }
@@ -120,6 +137,8 @@ android {
         }
     }
     compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     dependencies {
         debugImplementation(libs.compose.ui.tooling)
@@ -130,7 +149,7 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         buildTypes.release.proguard {
-            configurationFiles.from(project.file("compose-desktop.pro"))
+            configurationFiles.from(project.file("../compose-desktop.pro"))
         }
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
@@ -145,5 +164,5 @@ compose.experimental {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }

@@ -36,3 +36,7 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
     testImplementation(libs.ktor.server.tests)
 }
+
+kotlin {
+    jvmToolchain(21)
+}

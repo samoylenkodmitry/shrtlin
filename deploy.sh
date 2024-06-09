@@ -266,7 +266,8 @@ wait
 
 unzip -o "$FRONTEND_ARTIFACT_NAME" || error_exit "Failed to unzip $FRONTEND_ARTIFACT_NAME"
 rm -rf composeApp/build/
-mv -f frontend-web/composeApp/* ./composeApp || error_exit "Failed to move frontend files"
+mv -f frontend-web-wasm/composeApp/* ./composeApp || error_exit "Failed to move frontend files"
+mv -f frontend-web-js/composeApp/* ./composeApp || error_exit "Failed to move frontend files"
 cp "$BACKEND_ARTIFACT_NAME" server/build/libs/server-all.jar || error_exit "Failed to copy backend artifact"
 
 if [ ! -f "./server/ktor.pk8" ]; then

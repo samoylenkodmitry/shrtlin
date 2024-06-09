@@ -14,9 +14,13 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            target: web
-            artifact_name: frontend-web
+            target: webwasm
+            artifact_name: frontend-web-wasm
             package_task: wasmJsBrowserDistribution
+          - os: ubuntu-latest
+            target: webjs
+            artifact_name: frontend-web-js
+            package_task: jsBrowserDistribution
           - os: ubuntu-latest
             target: deb
             artifact_name: frontend-linux-x64
@@ -36,7 +40,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
 
       - name: Build Frontend
         run: ./gradlew :composeApp:${{ matrix.package_task }}
@@ -45,8 +49,10 @@ jobs:
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            if [ "${{ matrix.target }}" == "web" ]; then
+            if [ "${{ matrix.target }}" == "webwasm" ]; then
               composeApp/build/dist/wasmJs/productionExecutable
+            else if [ "${{ matrix.target }}" == "webjs" ]; then
+              composeApp/build/dist/js/productionExecutable
             else
               composeApp/build/compose/binaries/main/${{ matrix.target }} 
             fi
@@ -58,7 +64,7 @@ jobs:
       - uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'
+          java-version: '21'
       - name: Build Backend
         run: ./gradlew :server:buildFatJar
       - uses: actions/upload-artifact@v3
@@ -73,8 +79,13 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
-          name: frontend-web
-          path: frontend-web
+          name: frontend-web-wasm
+          path: frontend-web-wasm
+      
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-web-js
+          path: frontend-web-js
 
       - uses: actions/download-artifact@v3
         with:
@@ -97,8 +108,8 @@ jobs:
           path: backend-artifact
         continue-on-error: true
         
-      - name: Archive WASM Build
-        run: zip -r frontend-web.zip frontend-web/
+      - name: Archive WASM & JS Build
+        run: zip -r frontend-web.zip frontend-web-wasm frontend-web-js
       
       - name: List Files
         run: |

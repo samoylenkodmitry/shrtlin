@@ -24,6 +24,21 @@ kotlin {
         }
     }
 
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                devServer =
+                    (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                        static =
+                            (static ?: mutableListOf()).apply {
+                                // Serve sources to debug inside browser
+                                add(project.projectDir.path)
+                            }
+                    }
+            }
+        }
+    }
+
     androidTarget {
         compilations.all {
             kotlinOptions {
@@ -53,8 +68,12 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
