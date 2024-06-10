@@ -294,8 +294,6 @@ fi
 
 load_dotenv
 
-validate_env_vars
-
 if [ -z "$DOMAIN" ]; then
   read -p "Enter your domain (e.g., example.com): " DOMAIN
   echo "DOMAIN=$DOMAIN" >> .env 
@@ -319,6 +317,8 @@ if [ -z "$ZEROSSL_API_KEY" ]; then
 else
   log "ZeroSSL API key found in .env, skipping prompt."
 fi
+
+validate_env_vars
 
 if [ ! -f db_username.txt ] || [ ! -f db_password.txt ]; then
   read -p "Enter database username: " DB_USERNAME
