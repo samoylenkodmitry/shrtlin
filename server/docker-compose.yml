@@ -1,5 +1,5 @@
 services:
-  postgres:
+  postgres_test:
     image: postgres:latest
     environment:
       POSTGRES_DB: shrtlin
@@ -8,9 +8,9 @@ services:
     ports:
       - "5432:5432"
 
-  redis:
+  redis_test:
     image: redislabs/redistimeseries:latest
-    container_name: redis
+    container_name: redis_test
     restart: unless-stopped
     volumes:
       - redis_data:/data
