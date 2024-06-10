@@ -1,12 +1,26 @@
+function isSafari() {
+    var ua = window.navigator.userAgent;
+    var iOS = !!ua.match(/iP(ad|od|hone)/i);
+    var hasSafariInUa = !!ua.match(/Safari/i);
+    var noOtherBrowsersInUa = !ua.match(/Chrome|CriOS|OPiOS|mercury|FxiOS|Firefox/i)
+    var result = false;
+    if(iOS) { //detecting Safari in IOS mobile browsers
+        var webkit = !!ua.match(/WebKit/i);
+        result = webkit && hasSafariInUa && noOtherBrowsersInUa
+    } else if(window.safari !== undefined){ //detecting Safari in Desktop Browsers
+        result = true;
+    } else { // detecting Safari in other platforms
+        result = hasSafariInUa && noOtherBrowsersInUa
+    }
+    return result;
+}
 document.addEventListener('DOMContentLoaded', () => {
     var canva = document.createElement('canvas');
     var ctx = canva.getContext("2d");
     var img = ctx.getImageData(0, 0, 1, 1);
     var pix = img.data;     // byte array, rgba
     var unknownCanvas = (pix[3] != 0);   // alpha in Safari is not zero
-    const userAgent = navigator.userAgent;
-    const useJsIR = /iphone|kindle|ipad/i.test(userAgent);
-    const dataSrc = (unknownCanvas || useJsIR) ? 'js/index.html' : 'wasmJs/index.html';
+    const dataSrc = (unknownCanvas || isSafari()) ? 'js/index.html' : 'wasmJs/index.html';
 
     // Clear the existing document content
     document.body.innerHTML = '';
