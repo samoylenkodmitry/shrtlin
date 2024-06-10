@@ -151,7 +151,7 @@ health_check() {
 
   while [ $retry_count -lt $max_retries ]; do
     http_code=$(curl -s -o /dev/null -w "%{http_code}" "$service_url")
-    if [ "$http_code" == "200" ]; then
+    if [ "$http_code" == "200" ] || [ "$http_code" == "301" ]; then
       log "$service_name is healthy."
       return 0 # Success! Exit the function
     else
