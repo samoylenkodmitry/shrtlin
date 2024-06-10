@@ -3,10 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     var ctx = canva.getContext("2d");
     var img = ctx.getImageData(0, 0, 1, 1);
     var pix = img.data;     // byte array, rgba
-    var isSafari = (pix[3] != 0);   // alpha in Safari is not zero
-    //const userAgent = navigator.userAgent;
-    //const useJsIR = /iphone|kindle|ipad/i.test(userAgent);
-    const dataSrc = isSafari ? 'js/index.html' : 'wasmJs/index.html';
+    var unknownCanvas = (pix[3] != 0);   // alpha in Safari is not zero
+    const userAgent = navigator.userAgent;
+    const useJsIR = /iphone|kindle|ipad/i.test(userAgent);
+    const dataSrc = (unknownCanvas || useJsIR) ? 'js/index.html' : 'wasmJs/index.html';
 
     // Clear the existing document content
     document.body.innerHTML = '';
