@@ -33,7 +33,8 @@ services:
       - LETSENCRYPT_HOST=$DOMAIN
       - LETSENCRYPT_EMAIL=$LETSENCRYPT_EMAIL
       # path to https://shrtl.in/(.+) *with* the suffix path (e.g., https://shrtl.in/abc) to be proxied to the backend
-      - VIRTUAL_PATH=~^/(?!(8433c6b69bfa201b0895\.wasm|composeApp\.js|composeApp\.js\.LICENSE\.txt|composeApp\.js\.map|composeApp\.wasm|composeResources|shrtlin\.composeapp\.generated\.resources|drawable|compose-multiplatform\.xml|index\.html|META-INF|MANIFEST\.MF|skiko\.js|skiko\.mjs|skiko\.wasm)).+$
+      - VIRTUAL_PATH=~^/(?!(index\.html|delegate\.js|js/composeApp\.js|js/composeApp\.js\.LICENSE\.txt|js/composeApp\.js\.map|js/composeResources/shrtlin\.composeapp\.generated\.resources/drawable/compose-multiplatform\.xml|js/index\.html|js/META-INF/MANIFEST\.MF|js/skiko\.js|js/skiko\.mjs|js/skiko\.wasm|wasmJs/8433c6b69bfa201b0895\.wasm|wasmJs/composeApp\.js|wasmJs/composeApp\.js\.LICENSE\.txt|wasmJs/composeApp\.js\.map|wasmJs/composeApp\.wasm|wasmJs/composeResources/shrtlin\.composeapp\.generated\.resources/drawable/compose-multiplatform\.xml|wasmJs/index\.html|wasmJs/META-INF/MANIFEST\.MF|wasmJs/skiko\.js|wasmJs/skiko\.mjs|wasmJs/skiko\.wasm)).+$
+
     volumes:
       - ../../server/ktor.pk8:/run/secrets/ktor_pk8:ro
       - ../../server/certs/jwks.json:/run/secrets/certs/jwks.json:ro
