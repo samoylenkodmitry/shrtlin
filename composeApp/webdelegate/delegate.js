@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const userAgent = navigator.userAgent;
-    print('User Agent: ' + userAgent);
+    alert(userAgent);
     const useJsIR = /iphone|kindle|ipad|Safari|AppleWebKit/i.test(userAgent);
-    print('Use JS IR: ' + useJsIR);
     const dataSrc = useJsIR ? 'js/index.html' : 'wasmJs/index.html';
 
     // Clear the existing document content
