@@ -350,8 +350,8 @@ start_docker_service "nginx-proxy" "./dockers/reverseproxy"
 start_docker_service "backend" "./dockers/backend"
 start_docker_service "frontend" "./dockers/frontend"
 
-health_check "Nginx" "https://$DOMAIN"
-health_check "Backend" "https://$DOMAIN/pow/get"
+health_check "Nginx" "$DOMAIN"
+health_check "Backend" "$DOMAIN/pow/get"
 
 cleanup
 
