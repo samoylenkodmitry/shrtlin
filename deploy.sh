@@ -279,7 +279,9 @@ if [ ! -f "./server/ktor.pk8" ]; then
   mv ktor.pub server/ktor.pub || error_exit "Failed to move RSA public key"
   mv ktor.key server/ktor.key || error_exit "Failed to move RSA private key"
   mv ktor.pk8 server/ktor.pk8 || error_exit "Failed to move RSA PK8 key"
+  cd server || error_exit "Failed to change directory to server"
   ./server/gen_jwks_from_key.sh || error_exit "Failed to generate JWKS"
+  cd .. || error_exit "Failed to change directory to root"
   mv jwks.json server/jwks.json || error_exit "Failed to move JWKS file"
 else
   log "RSA keys found, skipping generation."
