@@ -116,24 +116,22 @@ fun initDB() {
     transaction {
         SchemaUtils.create(Urls, Users)
         // Check and add the clicks column if it doesn't exist
-        val result =
-            exec("SELECT column_name FROM information_schema.columns WHERE table_name='urls' AND column_name='clicks'") {
-                it.next()
-                it.getString("column_name")
+        val clicksColumnExists =
+            exec("SELECT column_name FROM information_schema.columns WHERE table_name='urls' AND column_name='clicks'") { rs ->
+                rs.next()
             }
 
-        if (result == null) {
+        if (clicksColumnExists == false) {
             exec("ALTER TABLE urls ADD COLUMN clicks BIGINT")
         }
 
         // Check and add the qr_clicks column if it doesn't exist
-        val qrResult =
-            exec("SELECT column_name FROM information_schema.columns WHERE table_name='urls' AND column_name='qr_clicks'") {
-                it.next()
-                it.getString("column_name")
+        val qrClicksColumnExists =
+            exec("SELECT column_name FROM information_schema.columns WHERE table_name='urls' AND column_name='qr_clicks'") { rs ->
+                rs.next()
             }
 
-        if (qrResult == null) {
+        if (qrClicksColumnExists == false) {
             exec("ALTER TABLE urls ADD COLUMN qr_clicks BIGINT")
         }
     }
