@@ -1,5 +1,6 @@
 package shrtl.`in`.ui.screen
 
+import ClassicColorPicker
 import UrlInfo
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.*
@@ -23,12 +24,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import com.godaddy.android.colorpicker.ClassicColorPicker
-import com.godaddy.android.colorpicker.HsvColor
 import io.github.alexzhirkevich.qrose.options.*
 import io.github.alexzhirkevich.qrose.rememberQrCodePainter
 import shrtl.`in`.core.Navigator
 import shrtl.`in`.ui.Theme
+import shrtl.`in`.ui.components.colorpicker.HsvColor
 import shrtl.`in`.util.*
 import shrtl.`in`.util.haze
 import shrtl.`in`.util.shader.ICE_EFFECT

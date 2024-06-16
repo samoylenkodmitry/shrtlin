@@ -89,8 +89,8 @@ kotlin {
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.multiplatform.settings.no.arg)
             implementation(libs.qrcode)
-            implementation(libs.colorpicker)
             implementation(libs.slf4j.simple)
+            implementation(libs.colormath)
             implementation(projects.shared)
         }
         desktopMain.dependencies {

@@ -31,10 +31,10 @@ okio = "3.9.0" # for sha256, todo consider lighter options
 postgresql = "42.4.1"
 slf4j = "1.7.32"
 qrcode = "1.0.1" # MIT https://github.com/alexzhirkevich/qrose/releases
-colorpicker = "0.7.0" # MIT https://github.com/godaddy/compose-color-picker/releases
+colormath = "3.5.0" # MIT https://github.com/ajalt/colormath
 
 [libraries]
-colorpicker = { module = "com.godaddy.android.colorpicker:compose-color-picker", version.ref = "colorpicker" }
+colormath = { module = "com.github.ajalt.colormath:colormath", version.ref = "colormath" }
 # composeIcons-feather = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
