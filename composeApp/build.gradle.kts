@@ -88,6 +88,8 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.lifecycle.viewmodel.compose)
             implementation(libs.multiplatform.settings.no.arg)
+            implementation(libs.qrcode)
+            implementation(libs.colorpicker)
             implementation(libs.slf4j.simple)
             implementation(projects.shared)
         }
@@ -113,7 +115,10 @@ kotlin {
 
 android {
     namespace = "in.shrtl.app"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
@@ -121,8 +126,14 @@ android {
 
     defaultConfig {
         applicationId = "in.shrtl.app"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.android.targetSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0"
     }

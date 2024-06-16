@@ -96,6 +96,8 @@ object Urls : LongIdTable() {
     val comment = varchar("comment", 2048)
     val userId = long("user_id").references(Users.id)
     val timestamp = long("timestamp")
+    val clicks = long("clicks")
+    val qrClicks = long("qr_clicks")
 }
 
 object Users : LongIdTable() {
@@ -125,7 +127,10 @@ private fun getDatabasePassword() =
     if (IS_LOCALHOST) {
         DEFAULT_DB_PASSWORD
     } else {
-        System.getenv("DATABASE_PASSWORD_FILE").takeIf { !it.isNullOrBlank() }?.let { File(it).readText().trim() }
+        System
+            .getenv("DATABASE_PASSWORD_FILE")
+            .takeIf { !it.isNullOrBlank() }
+            ?.let { File(it).readText().trim() }
             .takeIf { !it.isNullOrBlank() }
             .also { println("DATABASE_PASSWORD from file isNullOrEmpty?: ${it.isNullOrEmpty()}") }
             ?: DEFAULT_DB_PASSWORD
@@ -135,7 +140,10 @@ private fun getDatabaseUser() =
     if (IS_LOCALHOST) {
         "user"
     } else {
-        System.getenv("DATABASE_USER_FILE").takeIf { !it.isNullOrBlank() }?.let { File(it).readText().trim() }
+        System
+            .getenv("DATABASE_USER_FILE")
+            .takeIf { !it.isNullOrBlank() }
+            ?.let { File(it).readText().trim() }
             .takeIf { !it.isNullOrBlank() }
             .also { println("DATABASE_USER from file: $it") } ?: "user"
     }
@@ -219,21 +227,24 @@ fun Application.module() {
                     if (createdUser != null) {
                         // create JWT refreshToken, infinity lifetime
                         val refreshToken =
-                            JWT.create()
+                            JWT
+                                .create()
                                 .withAudience(audience)
                                 .withIssuer(issuer)
                                 .withClaim(CLAIM_USER_ID, createdUser.id)
                                 .sign(jwtAlgorithm)
                         // create JWT sessionToken
                         val sessionToken =
-                            JWT.create()
+                            JWT
+                                .create()
                                 .withAudience(audience)
                                 .withIssuer(issuer)
                                 .withExpiresAt(
-                                    Instant.now().plus(1L, ChronoUnit.DAYS)
+                                    Instant
+                                        .now()
+                                        .plus(1L, ChronoUnit.DAYS)
                                         .plus((0..1000).random().toLong(), ChronoUnit.MILLIS),
-                                )
-                                .withClaim(CLAIM_USER_ID, createdUser.id)
+                                ).withClaim(CLAIM_USER_ID, createdUser.id)
                                 .sign(jwtAlgorithm)
                         AuthResult(refreshToken, sessionToken, createdUser)
                     } else {
@@ -253,7 +264,8 @@ fun Application.module() {
                 val user = getUser(userId)
                 if (user != null) {
                     val sessionToken =
-                        JWT.create()
+                        JWT
+                            .create()
                             .withAudience(audience)
                             .withIssuer(issuer)
                             .withClaim(CLAIM_USER_ID, user.id)
@@ -270,13 +282,22 @@ fun Application.module() {
 
         authenticate("auth-jwt") {
             post(Endpoints.shorten()) {
-                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+                val userId =
+                    call
+                        .principal<JWTPrincipal>()
+                        ?.payload
+                        ?.getClaim(CLAIM_USER_ID)
+                        ?.asLong()
                 if (userId == null) {
                     call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
                     return@post
                 }
                 receiveArgs(it) { shortenRequest ->
-                    val orig = shortenRequest.url.trim().removePrefix("http://").removePrefix("https://")
+                    val orig =
+                        shortenRequest.url
+                            .trim()
+                            .removePrefix("http://")
+                            .removePrefix("https://")
                     transaction {
                         val urlId =
                             Urls.insert {
@@ -285,6 +306,8 @@ fun Application.module() {
                                 it[comment] = ""
                                 it[Urls.userId] = userId
                                 it[timestamp] = Clock.System.now().toEpochMilliseconds() - (0..1000).random()
+                                it[clicks] = 0
+                                it[qrClicks] = 0
                             } get Urls.id
 
                         val chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray()
@@ -312,6 +335,8 @@ fun Application.module() {
                             "",
                             userId,
                             timestamp,
+                            0,
+                            0,
                         )
                     }
                 }?.let { call.respond(HttpStatusCode.Created, it) } ?: call.respond(
@@ -320,7 +345,12 @@ fun Application.module() {
                 )
             }
             post(Endpoints.getUrls()) {
-                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+                val userId =
+                    call
+                        .principal<JWTPrincipal>()
+                        ?.payload
+                        ?.getClaim(CLAIM_USER_ID)
+                        ?.asLong()
                 if (userId == null) {
                     call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
                     return@post
@@ -330,7 +360,8 @@ fun Application.module() {
                     val totalCount = transaction { Urls.select { Urls.userId eq userId }.count() }
                     val urls =
                         transaction {
-                            Urls.select { Urls.userId eq userId }
+                            Urls
+                                .select { Urls.userId eq userId }
                                 .limit(req.pageSize, offset)
                                 .map {
                                     UrlInfo(
@@ -340,15 +371,21 @@ fun Application.module() {
                                         it[Urls.comment],
                                         it[Urls.userId],
                                         it[Urls.timestamp],
+                                        it[Urls.clicks],
+                                        it[Urls.qrClicks],
                                     )
-                                }
-                                .toList()
+                                }.toList()
                         }
                     UrlsResponse(urls, ceil(totalCount / req.pageSize.toDouble()).toInt())
                 }?.let { call.respond(it) } ?: call.respond(HttpStatusCode.BadRequest, "Invalid pagination parameters")
             }
             post(Endpoints.removeUrl()) {
-                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+                val userId =
+                    call
+                        .principal<JWTPrincipal>()
+                        ?.payload
+                        ?.getClaim(CLAIM_USER_ID)
+                        ?.asLong()
                 if (userId == null) {
                     call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
                     return@post
@@ -375,7 +412,12 @@ fun Application.module() {
                     ?: call.respond(HttpStatusCode.BadRequest, "Invalid request")
             }
             post(Endpoints.getClicks()) {
-                val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+                val userId =
+                    call
+                        .principal<JWTPrincipal>()
+                        ?.payload
+                        ?.getClaim(CLAIM_USER_ID)
+                        ?.asLong()
                 if (userId == null) {
                     call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
                     return@post
@@ -392,16 +434,59 @@ fun Application.module() {
             println("Redirecting: $shortUrl")
             val urlInfo =
                 transaction {
-                    Urls.select { Urls.shortUrl eq shortUrl!! }.singleOrNull()?.let {
-                        UrlInfo(
-                            it[Urls.id].value,
-                            it[Urls.originalUrl],
-                            "$hostUrl/${it[Urls.shortUrl]}",
-                            it[Urls.comment],
-                            it[Urls.userId],
-                            it[Urls.timestamp],
-                        )
+                    val info =
+                        Urls.select { Urls.shortUrl eq shortUrl!! }.singleOrNull()?.let {
+                            UrlInfo(
+                                it[Urls.id].value,
+                                it[Urls.originalUrl],
+                                "$hostUrl/${it[Urls.shortUrl]}",
+                                it[Urls.comment],
+                                it[Urls.userId],
+                                it[Urls.timestamp],
+                                it[Urls.clicks],
+                                it[Urls.qrClicks],
+                            )
+                        }
+                    if (info != null) {
+                        Urls.update({ Urls.id eq info.id }) {
+                            it[clicks] = 1 + info.clicks
+                        }
                     }
+                    info
+                }
+
+            println("Original URL: ${urlInfo?.originalUrl}")
+            if (urlInfo != null) {
+                recordClick(urlInfo.id)
+                call.respondRedirect("http://${urlInfo.originalUrl}")
+            } else {
+                call.respond(HttpStatusCode.NotFound, "URL Not Found")
+            }
+        }
+        get("/{shortUrl}/qr/") {
+            val shortUrl = call.parameters["shortUrl"]
+            println("Redirecting: $shortUrl")
+            val urlInfo =
+                transaction {
+                    val info =
+                        Urls.select { Urls.shortUrl eq shortUrl!! }.singleOrNull()?.let {
+                            UrlInfo(
+                                it[Urls.id].value,
+                                it[Urls.originalUrl],
+                                "$hostUrl/${it[Urls.shortUrl]}",
+                                it[Urls.comment],
+                                it[Urls.userId],
+                                it[Urls.timestamp],
+                                it[Urls.clicks],
+                                it[Urls.qrClicks],
+                            )
+                        }
+                    if (info != null) {
+                        Urls.update({ Urls.id eq info.id }) {
+                            it[qrClicks] = 1 + info.qrClicks
+                        }
+                    }
+                    info
                 }
 
             println("Original URL: ${urlInfo?.originalUrl}")
@@ -452,7 +537,10 @@ fun getClicksFromRedisTimeSeries(
             (response as List<List<Any>>).associate { dataPoint ->
                 val rawTimestamp = dataPoint[0] as Long
                 val count = String(dataPoint[1] as ByteArray).toLong().toInt()
-                val dateTime = kotlinx.datetime.Instant.fromEpochMilliseconds(rawTimestamp).toLocalDateTime(TimeZone.UTC)
+                val dateTime =
+                    kotlinx.datetime.Instant
+                        .fromEpochMilliseconds(rawTimestamp)
+                        .toLocalDateTime(TimeZone.UTC)
                 val formatter = SimpleDateFormat(period.dateFormat, Locale.US)
                 rawTimestamp.toString() to count
             }
@@ -470,8 +558,14 @@ fun getClicksFromRedisTimeSeries(
 fun recordClick(urlId: Long) {
     val jedis = jedisPool.resource
     val key = "clicks:url:$urlId"
-    jedis.sendCommand(TimeSeriesCommand.ADD, key, "*", "1")
-    jedis.close()
+    try {
+        jedis.sendCommand(TimeSeriesCommand.ADD, key, "*", "1")
+    } catch (e: Exception) {
+        println("Error while recording click in Redis: ${e.message}")
+        e.printStackTrace()
+    } finally {
+        jedis.close()
+    }
 }
 
 private fun loadJWTKey(): Algorithm {
@@ -498,7 +592,8 @@ fun issueChallenge(algorithm: Algorithm): Challenge {
     val randomHex = bytes.joinToString("") { "%02x".format(it) }
     val currentTimestamp = Clock.System.now().toEpochMilliseconds() - (0..1000).random()
     return Challenge(
-        JWT.create()
+        JWT
+            .create()
             .withExpiresAt(Instant.ofEpochMilli(currentTimestamp + CHALLENGE_EXPIRATION_TIME_MS))
             .withIssuer("in.shrtl.app")
             .withClaim("nonce", "$randomHex.$currentTimestamp")
@@ -518,7 +613,8 @@ fun validateChallengeSignatureAndTs(
 ): Boolean {
     val jwt =
         try {
-            JWT.require(algorithm)
+            JWT
+                .require(algorithm)
                 .withIssuer("in.shrtl.app")
                 .build()
                 .verify(challenge)
@@ -594,9 +690,11 @@ fun addUser(
         transaction {
             // check if user with the same challenge exists
             val existingUser =
-                Users.select { Users.challenge eq challenge }.map {
-                    User(it[Users.id].value, it[Users.nick])
-                }.singleOrNull()
+                Users
+                    .select { Users.challenge eq challenge }
+                    .map {
+                        User(it[Users.id].value, it[Users.nick])
+                    }.singleOrNull()
             if (existingUser != null) {
                 // user with the same challenge exists, don't create a new one
                 return@transaction null
@@ -613,9 +711,11 @@ fun addUser(
 
 fun getUser(id: Long) =
     transaction {
-        Users.select { Users.id eq id }.map {
-            User(it[Users.id].value, it[Users.nick])
-        }.singleOrNull()
+        Users
+            .select { Users.id eq id }
+            .map {
+                User(it[Users.id].value, it[Users.nick])
+            }.singleOrNull()
     }
 
 @Suppress("UNUSED_PARAMETER")
@@ -634,7 +734,12 @@ inline fun <reified A : Any, reified R : Any> Route.postWithAuth(
     crossinline body: suspend RoutingContext.(Pair<EndpointWithArg<A, R>, Long>) -> Unit,
 ): Route =
     post(endpoint.path) {
-        val userId = call.principal<JWTPrincipal>()?.payload?.getClaim(CLAIM_USER_ID)?.asLong()
+        val userId =
+            call
+                .principal<JWTPrincipal>()
+                ?.payload
+                ?.getClaim(CLAIM_USER_ID)
+                ?.asLong()
         if (userId == null) {
             call.respond(HttpStatusCode.Unauthorized, "User Not Found or invalid token")
             return@post

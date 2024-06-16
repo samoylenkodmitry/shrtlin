@@ -1,7 +1,5 @@
 @file:Suppress("ktlint:standard:no-wildcard-imports", "ktlint:standard:function-naming")
-@file:OptIn(ExperimentalFoundationApi::class)
 
-import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -58,6 +56,7 @@ fun App() {
                 Screen.Main -> MainScreen()
                 Screen.UserProfile -> UserProfileScreen()
                 Screen.Login -> LoginScreen()
+                is Screen.QrCode -> QrCodeScreen(screen.info)
                 is Screen.Card -> CardScreen(screen.info)
                 is Screen.Error -> ErrorScreen(screen.message)
             }

@@ -11,8 +11,8 @@ androidx-core-ktx = "1.13.1"
 androidx-espresso-core = "3.5.1"
 androidx-material = "1.12.0"
 androidx-test-junit = "1.1.5"
-compose = "1.6.10-beta03"
-compose-plugin = "1.6.10-rc02"
+compose = "1.6.11" # https://github.com/JetBrains/compose-multiplatform/releases
+compose-plugin = "1.6.11" # https://github.com/JetBrains/compose-multiplatform/releases
 compose-ui-tooling = "1.6.7"
 exposed = "0.36.2"
 haze = "0.7.1" # APACHE-2.0 https://github.com/chrisbanes/haze/releases
@@ -30,8 +30,11 @@ multiplatform-settings = "1.1.1" # APACHE-2.0 https://github.com/russhwolf/multi
 okio = "3.9.0" # for sha256, todo consider lighter options
 postgresql = "42.4.1"
 slf4j = "1.7.32"
+qrcode = "1.0.1" # MIT https://github.com/alexzhirkevich/qrose/releases
+colorpicker = "0.7.0" # MIT https://github.com/godaddy/compose-color-picker/releases
 
 [libraries]
+colorpicker = { module = "com.godaddy.android.colorpicker:compose-color-picker", version.ref = "colorpicker" }
 # composeIcons-feather = { module = "br.com.devsrsouza.compose.icons:feather", version.ref = "composeIcons" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "androidx-appcompat" }
@@ -83,6 +86,7 @@ okio-common = { module = "com.squareup.okio:okio", version.ref = "okio" }
 okio-js = { module = "com.squareup.okio:okio-nodefilesystem", version.ref = "okio" }
 okio-test = { module = "com.squareup.okio:okio-fakefilesystem", version.ref = "okio" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgresql" }
+qrcode = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrcode" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
 
 [plugins]

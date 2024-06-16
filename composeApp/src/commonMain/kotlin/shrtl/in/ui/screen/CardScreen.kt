@@ -41,6 +41,7 @@ import shrtl.`in`.util.rememberHaze
 import shrtl.`in`.util.shader.ICE_EFFECT
 import shrtl.`in`.util.shader.shaderBackground
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun BoxScope.CardScreen(info: UrlInfo) {
     val scope = rememberCoroutineScope()
@@ -79,20 +80,26 @@ fun BoxScope.CardScreen(info: UrlInfo) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
             modifier =
-                Modifier.hazeChild(
-                    state = hazeState,
-                    shape = RoundedCornerShape(16.dp),
-                    style =
-                        HazeStyle(
-                            blurRadius = 16.dp,
-                            tint = Color.White.copy(alpha = 0.4f),
-                        ),
-                ).align(Alignment.Center).padding(16.dp),
+                Modifier
+                    .hazeChild(
+                        state = hazeState,
+                        shape = RoundedCornerShape(16.dp),
+                        style =
+                            HazeStyle(
+                                blurRadius = 16.dp,
+                                tint = Color.White.copy(alpha = 0.4f),
+                            ),
+                    ).align(Alignment.Center)
+                    .padding(16.dp),
         ) {
             SelectionContainer {
                 Text(text = AnnotatedString("Original URL: ${info.originalUrl}"))
             }
             Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = AnnotatedString("Clicks: ${info.clicks}"))
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = AnnotatedString("QR Clicks: ${info.qrClicks}"))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(text = AnnotatedString("Short URL: "), style = TextStyle(color = Color.Gray))
                 ClickableText(
@@ -111,6 +118,19 @@ fun BoxScope.CardScreen(info: UrlInfo) {
                         }
                     }
                 })
+                IconButton(onClick = { Navigator.qrCode(info) }) {
+                    QrCode(
+                        info,
+                        modifier = Modifier.width(60.dp),
+                        settings =
+                            remember {
+                                QrCodeSettings().apply {
+                                    backgroundBrushSettings.solidColor.value = Color.Transparent
+                                    lightBrushSettings.solidColor.value = Color.Transparent
+                                } 
+                            },
+                    )
+                }
             }
             // Spacer(modifier = Modifier.height(8.dp))
             // Text(text = AnnotatedString("Comment: ${info.comment}")) // todo modify comments

@@ -1,19 +1,30 @@
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ShortenRequest(val url: String)
+data class ShortenRequest(
+    val url: String,
+)
 
 @Serializable
-data class RefreshTokenRequest(val refreshToken: String)
+data class RefreshTokenRequest(
+    val refreshToken: String,
+)
 
 /**
  * challenge is a signed JWT token, has timestamp inside it
  */
 @Serializable
-data class Challenge(val challenge: String, val prefix: String = DIFFICULTY_PREFIX)
+data class Challenge(
+    val challenge: String,
+    val prefix: String = DIFFICULTY_PREFIX,
+)
 
 @Serializable
-data class ProofOfWork(val challenge: String, val solution: String, val prefix: String)
+data class ProofOfWork(
+    val challenge: String,
+    val solution: String,
+    val prefix: String,
+)
 
 @Serializable
 data class User(
@@ -22,7 +33,11 @@ data class User(
 )
 
 @Serializable
-data class AuthResult(val refreshToken: String, val sessionToken: String, val user: User)
+data class AuthResult(
+    val refreshToken: String,
+    val sessionToken: String,
+    val user: User,
+)
 
 @Serializable
 data class UrlInfo(
@@ -32,10 +47,15 @@ data class UrlInfo(
     val comment: String,
     val userId: Long,
     val timestamp: Long,
+    val clicks: Long,
+    val qrClicks: Long,
 )
 
 @Serializable
-data class GetUrlsRequest(val page: Int, val pageSize: Int)
+data class GetUrlsRequest(
+    val page: Int,
+    val pageSize: Int,
+)
 
 @Serializable
 data class UrlsResponse(
@@ -44,12 +64,20 @@ data class UrlsResponse(
 )
 
 @Serializable
-data class RemoveUrlRequest(val id: Long)
+data class RemoveUrlRequest(
+    val id: Long,
+)
 
 @Serializable
-data class UpdateNickRequest(val nick: String)
+data class UpdateNickRequest(
+    val nick: String,
+)
 
-enum class Period(val aggregation: String, val timeBucketSeconds: Long, val dateFormat: String) {
+enum class Period(
+    val aggregation: String,
+    val timeBucketSeconds: Long,
+    val dateFormat: String,
+) {
     MINUTE("sum", 60, "yyyy-MM-dd HH:mm"),
     HOUR("sum", 3600, "yyyy-MM-dd HH"),
     DAY("sum", 86400, "yyyy-MM-dd"),
@@ -58,10 +86,15 @@ enum class Period(val aggregation: String, val timeBucketSeconds: Long, val date
 }
 
 @Serializable
-data class GetClicksRequest(val urlId: Long, val period: Period)
+data class GetClicksRequest(
+    val urlId: Long,
+    val period: Period,
+)
 
 @Serializable
-data class UrlStats(val clicks: Map<String, Int> = emptyMap()) {
+data class UrlStats(
+    val clicks: Map<String, Int> = emptyMap(),
+) {
     val dates by lazy { clicks.keys.toList() }
     val clickCounts by lazy { clicks.values.toList() }
 }

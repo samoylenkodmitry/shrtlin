@@ -33,7 +33,11 @@ object Navigator {
         screenFlow.tryEmit(Screen.Login)
     }
 
-    fun cardScreen(info: UrlInfo) {
+    fun card(info: UrlInfo) {
         screenFlow.tryEmit(Screen.Card(info))
+    }
+
+    fun qrCode(info: UrlInfo) {
+        screenFlow.tryEmit(Screen.QrCode(info))
     }
 }

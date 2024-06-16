@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import shrtl.`in`.core.ViewModel
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun UrlInfoCard(
     info: UrlInfo,
@@ -69,6 +70,11 @@ fun UrlInfoCard(
                     ButtonDelete(onUrlRemove)
                 }
             }
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = AnnotatedString("${info.clicks + info.qrClicks} clicks"),
+                style = TextStyle(fontSize = 12.sp),
+            )
             Spacer(modifier = Modifier.width(8.dp))
             ButtonCopyToClipboard(info.shortUrl)
         }

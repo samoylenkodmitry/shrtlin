@@ -39,6 +39,7 @@ import shrtl.`in`.util.rememberHaze
 import shrtl.`in`.util.shader.ICE_EFFECT
 import shrtl.`in`.util.shader.shaderBackground
 
+@Suppress("ktlint:standard:function-naming")
 @Composable
 fun MainScreen() {
     var showContent by remember { mutableStateOf(true) }
@@ -64,7 +65,9 @@ fun MainScreen() {
                 Modifier.haze(state = hazeState).fillMaxSize().shaderBackground(ICE_EFFECT, 0.009f),
         )
         ButtonUser(
-            Modifier.align(Alignment.TopEnd).padding(top = 20.dp, end = 20.dp)
+            Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 20.dp, end = 20.dp)
                 .hazeChild(
                     state = hazeState,
                     shape = CircleShape,
@@ -164,17 +167,17 @@ fun MainScreen() {
                                 }
                             },
                             modifier =
-                                Modifier.hazeChild(
-                                    state = hazeState,
-                                    shape = RoundedCornerShape(16.dp),
-                                    style =
-                                        HazeStyle(
-                                            blurRadius = 16.dp,
-                                            tint = Color.White.copy(alpha = 0.4f),
-                                        ),
-                                )
-                                    .animateItemPlacement()
-                                    .clickable { Navigator.cardScreen(info) },
+                                Modifier
+                                    .hazeChild(
+                                        state = hazeState,
+                                        shape = RoundedCornerShape(16.dp),
+                                        style =
+                                            HazeStyle(
+                                                blurRadius = 16.dp,
+                                                tint = Color.White.copy(alpha = 0.4f),
+                                            ),
+                                    ).animateItemPlacement()
+                                    .clickable { Navigator.card(info) },
                         )
                     }
                     item {
