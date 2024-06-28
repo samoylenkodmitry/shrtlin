@@ -5,6 +5,10 @@
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Fshrtl.in%2F)](https://shrtl.in/P1)
 
 
+| ![Static Badge](https://img.shields.io/badge/platform-android-android) | ![Static Badge](https://img.shields.io/badge/platform-ios-ios) | ![Static Badge](https://img.shields.io/badge/platform-web(wasm)-web) | ![Static Badge](https://img.shields.io/badge/platform-web(js)-web) | ![Static Badge](https://img.shields.io/badge/platform-desktop%20(jvm%20windows)-windows) | ![Static Badge](https://img.shields.io/badge/platform-desktop%20(jvm%20linux)-linux) | ![Static Badge](https://img.shields.io/badge/platform-desktop%20(jvm%20macOS)-linux) |
+| --- | --- | --- | --- | --- | --- | --- |
+| yes | yes | yes | yes | yes | yes | yes |
+---
 
 [![shrtlin](https://raw.githubusercontent.com/samoylenkodmitry/shrtlin/main/logo.svg)](https://shrtl.in/P1)
 
