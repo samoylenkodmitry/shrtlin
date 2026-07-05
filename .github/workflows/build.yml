@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: build-${{ matrix.os }}-${{ matrix.target }}
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.runner || matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -26,6 +26,7 @@ jobs:
             artifact_name: frontend-linux-x64
             package_task: packageDeb
           - os: macos-latest
+            runner: [self-hosted, macOS, ARM64]
             target: dmg
             artifact_name: frontend-macos-x64
             package_task: packageDmg
