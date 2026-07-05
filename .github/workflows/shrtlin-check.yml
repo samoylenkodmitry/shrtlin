@@ -1,0 +1,21 @@
+name: Self-hosted mac dmg check
+on:
+  workflow_dispatch:
+
+jobs:
+  dmg-check:
+    name: macOS packageDmg self-hosted check
+    runs-on: [self-hosted, macOS, ARM64]
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Show Android SDK env
+        run: 'echo "ANDROID_HOME=$ANDROID_HOME"; ls "$ANDROID_HOME" | head'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Package macOS dmg
+        run: ./gradlew :composeApp:packageDmg --no-daemon
+      - name: Show artifact
+        run: ls -la composeApp/build/compose/binaries/main/dmg/ || true
